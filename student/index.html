@@ -450,6 +450,25 @@ if (!localStorage.getItem('evenza_purge_clean_all_v5')) {
     localStorage.setItem('evenza_purge_clean_all_v5', 'true');
 }
 
+// Live initial event seed so events appear immediately on phones and all devices
+if (!localStorage.getItem('evenza_seed_event_v6')) {
+    const initialEvents = [
+        {
+            id: 101,
+            name: "National Tech & Innovation Summit 2026",
+            category: "Technical",
+            date: "2026-10-28",
+            time: "10:00 AM",
+            venue: "Main Auditorium, BMS Campus",
+            maxSeats: 350,
+            description: "Annual national tech conference featuring AI keynotes, developer workshops, panel discussions, and project exhibitions for university delegates.",
+            status: "upcoming"
+        }
+    ];
+    localStorage.setItem('evenza_events', JSON.stringify(initialEvents));
+    localStorage.setItem('evenza_seed_event_v6', 'true');
+}
+
 function getStoredEvents() {
     const raw = localStorage.getItem('evenza_events');
     try {

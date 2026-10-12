@@ -16,6 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event_id'])) {
         exit;
     }
 
+    // Explicitly delete student registrations for this event to ensure clean removal
+    $stmt_del_regs = $conn->prepare("DELETE FROM registrations WHERE event_id = ?");
+    $stmt_del_regs->bind_param("i", $delete_id);
+    $stmt_del_regs->execute();
+    $stmt_del_regs->close();
+
     $stmt_del = $conn->prepare("DELETE FROM events WHERE event_id = ?");
     $stmt_del->bind_param("i", $delete_id);
     if ($stmt_del->execute()) {

@@ -1135,17 +1135,71 @@ function handleEditEventSubmit(e) {
 }
 
 function deleteEvent(eventId) {
-    if (!confirm("Are you sure you want to delete this campus event? This will also remove associated bookings.")) return;
+    if (!confirm("Are you sure you want to delete this campus event? This will also remove associated student registrations.")) return;
+    
+    // 1. Remove event from local storage
     let events = getStoredEvents();
-    events = events.filter(e => e.id !== eventId);
+    events = events.filter(e => String(e.id) !== String(eventId));
     saveEvents(events);
 
-    // Sync delete to Real-Time Cloud Firestore
+    // 2. Remove all registrations associated with this event
+    let regs = getStoredRegistrations();
+    const removedCount = regs.filter(r => String(r.eventId) === String(eventId)).length;
+    regs = regs.filter(r => String(r.eventId) !== String(eventId));
+    saveRegistrations(regs);
+
+    // 3. Reset roster event filter if this event was selected
+    const select = document.getElementById('rosterEventFilter');
+    if (select && String(select.value) === String(eventId)) {
+        select.value = 'all';
+    }
+
+    // 4. Sync delete to Cloud
     if (window.EvenzaCloud && window.EvenzaCloud.isReady()) {
         window.EvenzaCloud.deleteEvent(eventId).catch(err => console.warn('Cloud delete error:', err));
     }
 
-    showToast("Event removed from directory.", "info");
+    // 5. Update UI
+    populateEventFilters();
+    renderRosterTable();
+    updateKPIs();
+
+    showToast(removedCount > 0 
+        ? `Event deleted and ${removedCount} student registration(s) removed.` 
+        : `Event removed from directory.`, "info");
+}
+
+function cleanupOrphanedRegistrations() {
+    const events = getStoredEvents();
+    const eventIds = new Set(events.map(e => String(e.id)));
+    const regs = getStoredRegistrations();
+    const validRegs = regs.filter(r => r.eventId && eventIds.has(String(r.eventId)));
+    if (validRegs.length !== regs.length) {
+        saveRegistrations(validRegs);
+        if (window.EvenzaCloud && window.EvenzaCloud.isReady()) {
+            const orphaned = regs.filter(r => !r.eventId || !eventIds.has(String(r.eventId)));
+            orphaned.forEach(r => {
+                if (typeof window.EvenzaCloud.deleteRegistration === 'function') {
+                    window.EvenzaCloud.deleteRegistration(r.id).catch(() => {});
+                }
+            });
+        }
+    }
+}
+
+function deleteRegistration(ticketId) {
+    if (!confirm("Are you sure you want to remove this student delegate registration?")) return;
+    let regs = getStoredRegistrations();
+    regs = regs.filter(r => String(r.id) !== String(ticketId));
+    saveRegistrations(regs);
+
+    if (window.EvenzaCloud && window.EvenzaCloud.isReady()) {
+        if (typeof window.EvenzaCloud.deleteRegistration === 'function') {
+            window.EvenzaCloud.deleteRegistration(ticketId).catch(err => console.warn('Cloud delete reg error:', err));
+        }
+    }
+
+    showToast("Student registration removed.", "info");
 }
 
 function populateEventFilters() {
@@ -1154,7 +1208,11 @@ function populateEventFilters() {
     if (!select) return;
     const currentVal = select.value;
     select.innerHTML = '<option value="all">All Events</option>' + events.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
-    select.value = currentVal;
+    if (currentVal && currentVal !== 'all' && events.some(e => String(e.id) === String(currentVal))) {
+        select.value = currentVal;
+    } else {
+        select.value = 'all';
+    }
 }
 
 function filterRosterByEvent(eventId) {
@@ -1168,6 +1226,7 @@ function filterRosterByEvent(eventId) {
 
 function renderRosterTable() {
     populateEventFilters();
+    cleanupOrphanedRegistrations();
     const regs = getStoredRegistrations();
     const q = (document.getElementById('rosterSearchInput')?.value || '').toLowerCase().trim();
     const eventFilter = document.getElementById('rosterEventFilter')?.value || 'all';
@@ -1215,9 +1274,14 @@ function renderRosterTable() {
                 ${r.checkedInAt ? `<small class="d-block text-muted" style="font-size: 0.7rem;">${r.checkedInAt}</small>` : ''}
             </td>
             <td class="text-end pe-3">
-                <button class="btn btn-sm ${r.checkedIn ? 'btn-outline-danger' : 'btn-outline-success'} rounded-pill px-3" onclick="toggleRosterCheckIn('${r.id}')">
-                    ${r.checkedIn ? '<i class="bi bi-x-circle me-1"></i>Undo' : '<i class="bi bi-check2-circle me-1"></i>Check-In'}
-                </button>
+                <div class="d-inline-flex gap-1">
+                    <button class="btn btn-sm ${r.checkedIn ? 'btn-outline-danger' : 'btn-outline-success'} rounded-pill px-3" onclick="toggleRosterCheckIn('${r.id}')">
+                        ${r.checkedIn ? '<i class="bi bi-x-circle me-1"></i>Undo' : '<i class="bi bi-check2-circle me-1"></i>Check-In'}
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger rounded-pill px-2" title="Remove Registration" onclick="deleteRegistration('${r.id}')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
             </td>
         </tr>
     `).join('');
@@ -1566,12 +1630,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.EvenzaCloud) {
         window.EvenzaCloud.onEventsUpdated(() => {
             console.log('[Evenza Admin] Received real-time events from cloud');
+            cleanupOrphanedRegistrations();
             updateKPIs();
             renderEventsTable();
             populateEventFilters();
+            renderRosterTable();
         });
         window.EvenzaCloud.onRegistrationsUpdated(() => {
             console.log('[Evenza Admin] Received real-time registrations from cloud');
+            cleanupOrphanedRegistrations();
             updateKPIs();
             renderRosterTable();
             renderEventsTable();
@@ -1579,6 +1646,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const cfg = window.EvenzaCloud.getConfig();
         updateCloudStatusUI(window.EvenzaCloud.isReady(), null, cfg ? cfg.projectId : '');
     }
+
+    cleanupOrphanedRegistrations();
 
     if (isSessionAdminLoggedIn()) {
         switchTab(hash);

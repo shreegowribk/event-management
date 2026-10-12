@@ -593,8 +593,15 @@ function renderStudentPasses() {
     const student = getActiveStudentSession();
     if (!student) return;
 
+    const events = getStoredEvents();
+    const eventIds = new Set(events.map(e => String(e.id)));
     const regs = getStoredRegistrations();
-    const myRegs = regs.filter(r => (r.usn && r.usn.toUpperCase() === student.usn.toUpperCase()) || (r.email && r.email.toLowerCase() === student.email.toLowerCase()));
+    const myRegs = regs.filter(r => 
+        ((r.usn && r.usn.toUpperCase() === student.usn.toUpperCase()) || 
+         (r.email && r.email.toLowerCase() === student.email.toLowerCase())) &&
+        eventIds.has(String(r.eventId)) &&
+        r.status !== 'cancelled'
+    );
 
     document.getElementById('myPassesCountBadge').textContent = `${myRegs.length} Pass${myRegs.length === 1 ? '' : 'es'}`;
     const container = document.getElementById('myPassesContainer');
@@ -713,14 +720,19 @@ function bookPassNow(eventId) {
 function cancelRegistration(ticketId) {
     if (!confirm("Are you sure you want to cancel this event pass?")) return;
     let regs = getStoredRegistrations();
-    regs = regs.filter(r => r.id !== ticketId);
+    regs = regs.filter(r => String(r.id) !== String(ticketId));
     saveRegistrations(regs);
 
-    // Sync cancellation to Real-Time Cloud Firestore
+    // Sync cancellation to Real-Time Cloud
     if (window.EvenzaCloud && window.EvenzaCloud.isReady()) {
-        window.EvenzaCloud.updateRegistration(ticketId, { status: 'cancelled' }).catch(err => console.warn('Cloud cancel error:', err));
+        if (typeof window.EvenzaCloud.deleteRegistration === 'function') {
+            window.EvenzaCloud.deleteRegistration(ticketId).catch(err => console.warn('Cloud delete error:', err));
+        } else {
+            window.EvenzaCloud.updateRegistration(ticketId, { status: 'cancelled' }).catch(err => console.warn('Cloud cancel error:', err));
+        }
     }
 
+    renderStudentPasses();
     renderQuickEvents();
     showToast("Event pass cancelled.", "info");
 }
@@ -799,6 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.EvenzaCloud) {
         window.EvenzaCloud.onEventsUpdated(() => {
             console.log('[Evenza Student] Received real-time events from cloud');
+            renderStudentPasses();
             renderQuickEvents();
         });
         window.EvenzaCloud.onRegistrationsUpdated(() => {

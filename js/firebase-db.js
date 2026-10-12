@@ -100,13 +100,53 @@
         }, 4000);
     }
 
+    function getDeletedEventIds() {
+        try {
+            const raw = localStorage.getItem('evenza_deleted_events');
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function markEventDeleted(eventId) {
+        try {
+            const ids = getDeletedEventIds();
+            if (!ids.includes(String(eventId))) {
+                ids.push(String(eventId));
+                localStorage.setItem('evenza_deleted_events', JSON.stringify(ids));
+            }
+        } catch (e) {}
+    }
+
+    function getDeletedRegistrationIds() {
+        try {
+            const raw = localStorage.getItem('evenza_deleted_regs');
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function markRegistrationDeleted(regId) {
+        try {
+            const ids = getDeletedRegistrationIds();
+            if (!ids.includes(String(regId))) {
+                ids.push(String(regId));
+                localStorage.setItem('evenza_deleted_regs', JSON.stringify(ids));
+            }
+        } catch (e) {}
+    }
+
     async function syncEventsFromBuiltinCloud() {
         try {
             const res = await fetch(`${CLOUD_BASE_URL}/${CLOUD_EVENTS_ID}`, { cache: 'no-store' });
             if (!res.ok) return;
             const payload = await res.json();
-            const cloudEvents = (payload.data && Array.isArray(payload.data.events)) ? payload.data.events : [];
-            const localEvents = getStoredEvents();
+            const deletedEventIds = new Set(getDeletedEventIds());
+            let cloudEvents = (payload.data && Array.isArray(payload.data.events)) ? payload.data.events : [];
+            cloudEvents = cloudEvents.filter(ce => !deletedEventIds.has(String(ce.id)));
+            const localEvents = getStoredEvents().filter(le => !deletedEventIds.has(String(le.id)));
 
             if (cloudEvents.length > 0) {
                 // If local has events not yet in cloud (e.g. from laptop), merge & push up
@@ -154,8 +194,11 @@
             const res = await fetch(`${CLOUD_BASE_URL}/${CLOUD_REGS_ID}`, { cache: 'no-store' });
             if (!res.ok) return;
             const payload = await res.json();
-            const cloudRegs = (payload.data && Array.isArray(payload.data.registrations)) ? payload.data.registrations : [];
-            const localRegs = getStoredRegistrations();
+            const deletedEventIds = new Set(getDeletedEventIds());
+            const deletedRegIds = new Set(getDeletedRegistrationIds());
+            let cloudRegs = (payload.data && Array.isArray(payload.data.registrations)) ? payload.data.registrations : [];
+            cloudRegs = cloudRegs.filter(cr => !deletedRegIds.has(String(cr.id)) && (!cr.eventId || !deletedEventIds.has(String(cr.eventId))));
+            const localRegs = getStoredRegistrations().filter(lr => !deletedRegIds.has(String(lr.id)) && (!lr.eventId || !deletedEventIds.has(String(lr.eventId))));
 
             if (cloudRegs.length > 0) {
                 const missingInCloud = localRegs.filter(lr => !cloudRegs.some(cr => String(cr.id) === String(lr.id)));
@@ -206,18 +249,31 @@
         if (regsUnsubscribe) regsUnsubscribe();
 
         eventsUnsubscribe = db.collection('evenza_events').onSnapshot((snapshot) => {
+            const deletedEventIds = new Set(getDeletedEventIds());
             const cloudEvents = [];
-            snapshot.forEach(doc => cloudEvents.push(doc.data()));
-            if (cloudEvents.length > 0) {
+            snapshot.forEach(doc => {
+                const ev = doc.data();
+                if (!deletedEventIds.has(String(ev.id))) {
+                    cloudEvents.push(ev);
+                }
+            });
+            if (cloudEvents.length > 0 || snapshot.size === 0) {
                 localStorage.setItem('evenza_events', JSON.stringify(cloudEvents));
                 notifyEventsUpdated(cloudEvents);
             }
         });
 
         regsUnsubscribe = db.collection('evenza_registrations').onSnapshot((snapshot) => {
+            const deletedEventIds = new Set(getDeletedEventIds());
+            const deletedRegIds = new Set(getDeletedRegistrationIds());
             const cloudRegs = [];
-            snapshot.forEach(doc => cloudRegs.push(doc.data()));
-            if (cloudRegs.length > 0) {
+            snapshot.forEach(doc => {
+                const reg = doc.data();
+                if (!deletedRegIds.has(String(reg.id)) && (!reg.eventId || !deletedEventIds.has(String(reg.eventId)))) {
+                    cloudRegs.push(reg);
+                }
+            });
+            if (cloudRegs.length > 0 || snapshot.size === 0) {
                 localStorage.setItem('evenza_registrations', JSON.stringify(cloudRegs));
                 notifyRegsUpdated(cloudRegs);
             }
@@ -283,18 +339,71 @@
     }
 
     async function deleteEvent(eventId) {
+        // 1. Remove event from local storage
         const local = getStoredEvents().filter(e => String(e.id) !== String(eventId));
         localStorage.setItem('evenza_events', JSON.stringify(local));
 
+        // 2. Mark event as deleted to prevent resurrection in sync
+        markEventDeleted(eventId);
+
+        // 3. Remove all registrations for this event from local storage
+        const allRegs = getStoredRegistrations();
+        const remainingRegs = allRegs.filter(r => String(r.eventId) !== String(eventId));
+        const deletedRegs = allRegs.filter(r => String(r.eventId) === String(eventId));
+        localStorage.setItem('evenza_registrations', JSON.stringify(remainingRegs));
+        deletedRegs.forEach(r => markRegistrationDeleted(r.id));
+
+        // 4. Propagate deletion to cloud
         if (isFirebaseActive && db) {
             try {
                 await db.collection('evenza_events').doc(String(eventId)).delete();
+
+                // Batch delete associated registrations in Firestore
+                const batch = db.batch();
+                let count = 0;
+                for (const reg of deletedRegs) {
+                    batch.delete(db.collection('evenza_registrations').doc(String(reg.id)));
+                    count++;
+                }
+                try {
+                    const snap = await db.collection('evenza_registrations').where('eventId', '==', eventId).get();
+                    snap.forEach(doc => {
+                        batch.delete(doc.ref);
+                        count++;
+                    });
+                } catch(e) {}
+                if (count > 0) {
+                    await batch.commit();
+                }
             } catch (err) {
                 console.error('[Evenza Cloud] Firebase delete error:', err);
             }
         } else {
             await pushEventsToBuiltinCloud(local);
+            await pushRegistrationsToBuiltinCloud(remainingRegs);
         }
+
+        notifyEventsUpdated(local);
+        notifyRegsUpdated(remainingRegs);
+    }
+
+    async function deleteRegistration(regId) {
+        const local = getStoredRegistrations().filter(r => String(r.id) !== String(regId));
+        localStorage.setItem('evenza_registrations', JSON.stringify(local));
+
+        markRegistrationDeleted(regId);
+
+        if (isFirebaseActive && db) {
+            try {
+                await db.collection('evenza_registrations').doc(String(regId)).delete();
+            } catch (err) {
+                console.error('[Evenza Cloud] Firebase delete registration error:', err);
+            }
+        } else {
+            await pushRegistrationsToBuiltinCloud(local);
+        }
+
+        notifyRegsUpdated(local);
     }
 
     async function saveRegistration(regObj) {
@@ -349,6 +458,7 @@
         onRegistrationsUpdated: (fn) => { if (typeof fn === 'function') regListeners.push(fn); },
         saveEvent,
         deleteEvent,
+        deleteRegistration,
         saveRegistration,
         updateRegistration
     };

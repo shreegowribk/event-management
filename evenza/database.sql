@@ -72,9 +72,5 @@ CREATE TABLE IF NOT EXISTS `registrations` (
 -- Sample Seed Data for Evenza Events
 -- ----------------------------------------------------------
 INSERT INTO `events` (`event_name`, `category`, `event_date`, `event_time`, `venue`, `description`, `max_seats`) VALUES
-('TechBlitz: Hackathon 2026', 'Technical', '2026-10-15', '09:30:00', 'Campus Computer Lab 3', 'A 12-hour intensive coding hackathon where students build cutting-edge solutions for smart campus management. Teams of 1-3 members can compete.', 45),
-('Nrityotsav: Inter-College Cultural Fest', 'Cultural', '2026-10-22', '14:00:00', 'Campus Main Auditorium', 'Grand cultural evening featuring classical and western group dance competitions, solo singing, and drama performances celebrating Karnataka heritage.', 120),
-('Chanakya: Management Conclave', 'Management', '2026-11-05', '10:00:00', 'Seminar Hall 1', 'Premier business quiz, crisis management simulation, and product launch pitching competition designed for aspiring business leaders and innovators.', 60),
-('Full-Stack Web Development Workshop', 'Workshop', '2026-10-28', '11:00:00', 'Digital Learning Center', 'Hands-on masterclass covering modern web development, APIs, database optimization, and deployment best practices guided by industry architects.', 35),
-('Spardha: Annual Badminton Tournament', 'Sports', '2026-11-12', '08:00:00', 'Campus Sports Complex Court A', 'Annual intra-college badminton tournament for Men and Women singles and doubles. Trophies and certificates for winners and runners-up.', 32),
-('CyberGuard: Ethical Hacking Bootcamp', 'Technical', '2026-11-20', '10:30:00', 'MCA Seminar Hall', 'Comprehensive workshop on network security, penetration testing fundamentals, and ethical hacking protocols with real-world defensive labs.', 50);
+('Conference', 'Academic', '2026-10-25', '10:00:00', 'BMS CCM', '2nd Conference- Confluence 2026', 300);
+

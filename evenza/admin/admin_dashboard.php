@@ -221,12 +221,6 @@ include __DIR__ . '/admin_header.php';
                                     <a href="edit_event.php?event_id=<?= (int)$evt['event_id'] ?>" class="btn btn-sm btn-outline-secondary rounded-pill px-2 ms-1" title="Edit Event">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2 ms-1 delete-event-btn" 
-                                            data-event-id="<?= (int)$evt['event_id'] ?>" 
-                                            data-event-title="<?= escape($evt['event_name']) ?>" 
-                                            title="Delete Event">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
                                 </td>
                             </tr>
                             <?php endwhile; ?>
@@ -238,57 +232,8 @@ include __DIR__ . '/admin_header.php';
     </div>
 </div>
 
-<!-- Delete Event Confirmation Modal -->
-<div class="modal fade" id="deleteEventConfirmModal" tabindex="-1" aria-labelledby="deleteEventModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title fw-bold" id="deleteEventModalLabel">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Delete Campus Event
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <p class="mb-2 text-secondary">Are you sure you want to permanently delete this event?</p>
-                <div class="alert alert-light border fw-bold text-dark fs-6" id="modalDeleteEventTitle"></div>
-                <div class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 small text-danger mb-0">
-                    <i class="bi bi-exclamation-octagon-fill me-1"></i> <strong>Warning:</strong> All associated student registrations, issued tickets, and check-in history will be permanently deleted. This action cannot be reversed.
-                </div>
-            </div>
-            <div class="modal-footer border-top bg-light">
-                <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
-                <form method="POST" action="admin_dashboard.php" id="modalDeleteForm" class="d-inline">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="delete_event_id" id="modalDeleteEventId" value="">
-                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">
-                        <i class="bi bi-trash-fill me-1"></i> Delete Event
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Delete Confirmation Modal Handling
-    let deleteModal = null;
-    const modalEl = document.getElementById('deleteEventConfirmModal');
-
-    document.querySelectorAll('.delete-event-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.getAttribute('data-event-id');
-            const title = this.getAttribute('data-event-title');
-            document.getElementById('modalDeleteEventId').value = id;
-            document.getElementById('modalDeleteEventTitle').textContent = title;
-            if (!deleteModal && modalEl && typeof bootstrap !== 'undefined') {
-                deleteModal = new bootstrap.Modal(modalEl);
-            }
-            if (deleteModal) {
-                deleteModal.show();
-            }
-        });
-    });
 
     // Real-Time Event Search Filter
     const filterInput = document.getElementById('adminEventFilterInput');

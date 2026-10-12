@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Evenza — Campus Event Management System</title>
-    <meta name="description" content="Evenza is the official campus event management, registration, and verified digital entry pass system for college events.">
+    <meta name="description" content="Evenza is the official campus event management, student registration, and verified digital entry pass system for college events.">
     <!-- DNS prefetch & CDN preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -104,12 +104,17 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="javascript:void(0)" onclick="openMyTicketsModal()">
-                            <i class="bi bi-ticket-perforated me-1"></i> My Registrations
+                        <a class="nav-link text-warning fw-semibold" href="student/">
+                            <i class="bi bi-mortarboard-fill me-1"></i> Student Portal
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-warning fw-semibold" href="admin/">
+                        <a class="nav-link" href="javascript:void(0)" onclick="openMyTicketsModal()">
+                            <i class="bi bi-ticket-perforated me-1"></i> My Passes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="admin/">
                             <i class="bi bi-shield-lock me-1"></i> Admin Console
                         </a>
                     </li>
@@ -119,11 +124,11 @@
                     <button class="btn btn-warning px-3 py-1 rounded-pill fw-bold text-dark shadow-sm" onclick="openRegisterModal()">
                         <i class="bi bi-person-plus-fill me-1"></i> Register Pass
                     </button>
-                    <a href="admin/" class="btn btn-outline-warning px-3 py-1 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center gap-1">
-                        <i class="bi bi-shield-check"></i> Admin Portal
+                    <a href="student/" class="btn btn-outline-warning px-3 py-1 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center gap-1">
+                        <i class="bi bi-person-circle"></i> Student Portal
                     </a>
-                    <a href="https://github.com/shreegowribk/event-management" target="_blank" rel="noopener" class="btn btn-dark px-3 py-1 rounded-pill fw-semibold shadow-sm border border-secondary border-opacity-50 d-inline-flex align-items-center gap-1 text-light">
-                        <i class="bi bi-github text-warning"></i> GitHub
+                    <a href="admin/" class="btn btn-outline-light px-3 py-1 rounded-pill fw-semibold shadow-sm d-inline-flex align-items-center gap-1">
+                        <i class="bi bi-shield-check"></i> Admin Console
                     </a>
                 </div>
             </div>
@@ -142,12 +147,6 @@
     <div class="container position-relative py-lg-4">
         <div class="row align-items-center g-4">
             <div class="col-lg-8">
-                <div class="alert alert-dark border border-warning border-opacity-25 py-2 px-3 rounded-pill d-inline-flex align-items-center gap-2 mb-3 shadow-sm" style="background: rgba(11, 19, 43, 0.7);">
-                    <span class="badge bg-warning text-dark fw-bold">Faculty &amp; Staff</span>
-                    <span class="small text-white-50">Need to manage events or scan QR passes?</span>
-                    <a href="admin/" class="text-warning fw-bold text-decoration-none small">Access Admin Console &rarr;</a>
-                </div>
-
                 <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-white bg-opacity-10 backdrop-blur border border-white border-opacity-10 mb-3 text-warning small fw-semibold">
                     <i class="bi bi-patch-check-fill"></i> BMS College of Commerce &amp; Management &bull; Evenza 2026
                 </div>
@@ -158,19 +157,19 @@
                 </h1>
                 
                 <p class="lead text-light text-opacity-75 mb-4 hero-subtitle" style="max-width: 650px;">
-                    Explore conferences, technical summits, cultural evenings, and workshops. Reserve your seat and download your digital QR pass in seconds.
+                    Explore academic conferences, technical summits, cultural evenings, and workshops. Reserve your seat and download your digital QR pass in seconds.
                 </p>
 
                 <div class="d-flex align-items-center gap-3 flex-wrap">
                     <a href="#events-roster" class="btn btn-warning px-4 py-2 rounded-pill fw-bold text-dark shadow-lg">
                         <i class="bi bi-calendar-event me-1"></i> Browse Events
                     </a>
+                    <a href="student/" class="btn btn-outline-warning px-4 py-2 rounded-pill fw-bold text-warning shadow-sm">
+                        <i class="bi bi-mortarboard-fill me-1"></i> Student Registration Portal
+                    </a>
                     <a href="admin/" class="btn btn-outline-light px-4 py-2 rounded-pill fw-semibold">
                         <i class="bi bi-shield-check me-1"></i> Administrator Suite
                     </a>
-                    <button class="btn btn-outline-warning px-4 py-2 rounded-pill fw-semibold" onclick="openMyTicketsModal()">
-                        <i class="bi bi-ticket-perforated me-1"></i> View My Pass
-                    </button>
                 </div>
             </div>
 
@@ -186,12 +185,12 @@
                         <span class="fw-bold fs-5 text-warning brand-font" id="heroSeatsRemaining">Available</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-white border-opacity-10">
-                        <span class="text-light small">Entry Verification:</span>
-                        <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50">QR Verified</span>
+                        <span class="text-light small">Student Portal:</span>
+                        <a href="student/" class="text-warning small fw-semibold text-decoration-none"><i class="bi bi-box-arrow-in-right me-1"></i> Sign In / Register</a>
                     </div>
                     <div class="d-flex justify-content-between align-items-center pt-1">
                         <span class="text-light small">Administrator Console:</span>
-                        <a href="admin/" class="text-warning small fw-semibold text-decoration-none"><i class="bi bi-box-arrow-in-right me-1"></i> Open Portal</a>
+                        <a href="admin/" class="text-warning small fw-semibold text-decoration-none"><i class="bi bi-shield-lock me-1"></i> Open Portal</a>
                     </div>
                 </div>
             </div>
@@ -199,7 +198,7 @@
     </div>
 </section>
 
-<!-- Filter & Search Floating Bar -->
+<!-- Filter & Search Bar -->
 <div class="container" id="events-roster">
     <div class="filter-container">
         <div class="row g-2 align-items-center mb-3">
@@ -223,7 +222,6 @@
             </div>
         </div>
 
-        <!-- Filter Badges / Pills -->
         <div class="d-flex gap-2 overflow-x-auto pb-2 category-pills-bar">
             <button type="button" class="category-filter-badge active" data-cat="all">All Categories</button>
             <button type="button" class="category-filter-badge" data-cat="Academic">Academic</button>
@@ -259,13 +257,13 @@
             <div class="modal-body p-4">
                 <form id="registrationForm" onsubmit="handleRegistrationSubmit(event)">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-secondary">Select Event *</label>
+                        <label class="form-label small fw-bold text-secondary">Select Campus Event *</label>
                         <select class="form-select" id="regEventSelect" required>
                             <!-- Injected dynamically -->
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-secondary">Full Name *</label>
+                        <label class="form-label small fw-bold text-secondary">Full Student Name *</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
                             <input type="text" id="regFullName" class="form-control" placeholder="e.g. Shreegowri B K" required>
@@ -274,7 +272,7 @@
                     <div class="row g-2 mb-3">
                         <div class="col-6">
                             <label class="form-label small fw-bold text-secondary">USN / Roll No. *</label>
-                            <input type="text" id="regUsn" class="form-control text-uppercase" placeholder="e.g. U18IN24S0046" required>
+                            <input type="text" id="regUsn" class="form-control text-uppercase font-monospace" placeholder="e.g. U18IN24S0046" required>
                         </div>
                         <div class="col-6">
                             <label class="form-label small fw-bold text-secondary">Phone Number *</label>
@@ -282,7 +280,7 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-secondary">Email Address *</label>
+                        <label class="form-label small fw-bold text-secondary">College Email Address *</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
                             <input type="email" id="regEmail" class="form-control" placeholder="student@bms.edu.in" required>
@@ -347,7 +345,7 @@
                             </div>
                             <div class="col-6">
                                 <span class="text-muted d-block">Reporting Time:</span>
-                                <strong class="text-dark" id="ticketEventTime">09:30 AM IST</strong>
+                                <strong class="text-dark" id="ticketEventTime">10:00 AM IST</strong>
                             </div>
                         </div>
 
@@ -404,8 +402,8 @@
     <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2 text-muted small">
         <p class="mb-0">&copy; 2026 Evenza Campus Event Management &bull; BMS College of Commerce &amp; Management</p>
         <div class="d-flex gap-3">
-            <a href="admin/" class="text-warning fw-bold text-decoration-none">Admin Console</a>
-            <a href="https://github.com/shreegowribk/event-management" target="_blank" class="text-muted text-decoration-none">GitHub Repository</a>
+            <a href="student/" class="text-warning fw-bold text-decoration-none">Student Registration Portal</a>
+            <a href="admin/" class="text-light fw-bold text-decoration-none">Admin Console</a>
         </div>
     </div>
 </footer>
@@ -414,10 +412,10 @@
 
 <script>
 // =========================================================================
-// DATA AND SYNCHRONIZATION
+// DATA ACCESS & PERSISTENCE
 // =========================================================================
 
-const INITIAL_EVENTS = [
+const REAL_INITIAL_EVENTS = [
     {
         id: 7,
         name: "Conference: Confluence 2026",
@@ -428,81 +426,31 @@ const INITIAL_EVENTS = [
         description: "2nd Inter-College Academic Conference - Confluence 2026 bringing together scholars, students, faculty, and industry leaders.",
         maxSeats: 300,
         status: "upcoming"
-    },
-    {
-        id: 8,
-        name: "MINDTRICK: Technical Quiz & Coding",
-        category: "Technical",
-        date: "2026-10-28",
-        time: "10:00",
-        venue: "BMSCCM Seminar Hall",
-        description: "Intense logical reasoning, algothon challenges, and tech trivia.",
-        maxSeats: 500,
-        status: "upcoming"
-    },
-    {
-        id: 9,
-        name: "CONFERENCE: AI in Enterprise",
-        category: "Technical",
-        date: "2026-10-30",
-        time: "10:00",
-        venue: "BMSCCM Seminar Hall",
-        description: "Keynote talks by industry leaders on modern AI architecture and cloud systems.",
-        maxSeats: 500,
-        status: "upcoming"
-    }
-];
-
-const INITIAL_REGISTRATIONS = [
-    {
-        id: "EVZ-20261001-E007-S002-EBA297",
-        eventId: 7,
-        eventName: "Conference: Confluence 2026",
-        name: "SHREE GOWRI BK",
-        usn: "U18IN24S0046",
-        email: "shreegowribk@gmail.com",
-        phone: "9731549988",
-        college: "BMS CCM",
-        registeredAt: "2026-10-01 10:50:19",
-        status: "confirmed",
-        checkedIn: true
-    },
-    {
-        id: "EVZ-20261002-E007-S001-A19F83",
-        eventId: 7,
-        eventName: "Conference: Confluence 2026",
-        name: "Rahul Sharma",
-        usn: "1EV21MC001",
-        email: "rahul@evenza.com",
-        phone: "9876543210",
-        college: "BMS CCM",
-        registeredAt: "2026-10-02 11:20:00",
-        status: "confirmed",
-        checkedIn: false
     }
 ];
 
 function getStoredEvents() {
     const raw = localStorage.getItem('evenza_events');
     if (!raw) {
-        localStorage.setItem('evenza_events', JSON.stringify(INITIAL_EVENTS));
-        return INITIAL_EVENTS;
+        localStorage.setItem('evenza_events', JSON.stringify(REAL_INITIAL_EVENTS));
+        return REAL_INITIAL_EVENTS;
     }
     return JSON.parse(raw);
 }
 
 function getStoredRegistrations() {
-    const data = localStorage.getItem('evenza_registrations');
-    if (!data) {
-        localStorage.setItem('evenza_registrations', JSON.stringify(INITIAL_REGISTRATIONS));
-        return INITIAL_REGISTRATIONS;
-    }
-    return JSON.parse(data);
+    const raw = localStorage.getItem('evenza_registrations');
+    return raw ? JSON.parse(raw) : [];
 }
 
 function saveRegistrations(regs) {
     localStorage.setItem('evenza_registrations', JSON.stringify(regs));
     renderEventsGrid();
+}
+
+function getActiveStudentSession() {
+    const raw = localStorage.getItem('evenza_active_student');
+    return raw ? JSON.parse(raw) : null;
 }
 
 // Toast Notifications
@@ -541,8 +489,8 @@ function renderEventsGrid() {
         grid.innerHTML = `
             <div class="col-12 text-center py-5">
                 <i class="bi bi-calendar-x fs-1 text-muted"></i>
-                <h4 class="mt-3 text-secondary">No events listed currently</h4>
-                <p class="text-muted">Administrators can add events in the <a href="admin/">Admin Console</a>.</p>
+                <h4 class="mt-3 text-secondary">No events published yet</h4>
+                <p class="text-muted">Administrators can create campus events in the <a href="admin/">Admin Console</a>.</p>
             </div>
         `;
         return;
@@ -623,7 +571,6 @@ function renderEventsGrid() {
     filterEvents();
 }
 
-// Filter Events
 let activeCategory = 'all';
 
 function filterEvents() {
@@ -656,6 +603,16 @@ function openRegisterModal(preselectedEventId = null) {
     if (select) {
         select.innerHTML = events.map(e => `<option value="${e.id}" ${preselectedEventId == e.id ? 'selected' : ''}>${e.name} (${e.date})</option>`).join('');
     }
+
+    // Auto fill if student is logged in
+    const student = getActiveStudentSession();
+    if (student) {
+        document.getElementById('regFullName').value = student.fullName || '';
+        document.getElementById('regUsn').value = student.usn || '';
+        document.getElementById('regEmail').value = student.email || '';
+        document.getElementById('regPhone').value = student.phone || '';
+    }
+
     const modal = new bootstrap.Modal(document.getElementById('registerModal'));
     modal.show();
 }

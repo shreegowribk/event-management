@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Evenza Admin — Administrator Console</title>
-    <meta name="description" content="Evenza Administrator Console for campus event oversight, registration monitoring, attendee check-in, and QR entry verification.">
+    <meta name="description" content="Evenza Administrator Console for campus event oversight, registration monitoring, attendee check-in, and live optical QR entry verification.">
     <!-- DNS prefetch & CDN preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -87,21 +87,6 @@
             border: 1px solid rgba(220, 215, 205, 0.7);
             overflow: hidden;
         }
-        .nav-pills .nav-link {
-            border-radius: 50rem;
-            padding: 0.5rem 1.25rem;
-            font-weight: 600;
-            color: #495057;
-            transition: all 0.2s;
-        }
-        .nav-pills .nav-link.active {
-            background-color: var(--evenza-gold);
-            color: #0b132b;
-            box-shadow: 0 4px 12px rgba(197, 160, 89, 0.3);
-        }
-        .table-responsive {
-            border-radius: 12px;
-        }
         .badge-academic { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
         .badge-technical { background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; }
         .badge-cultural { background: #fce7f3; color: #be185d; border: 1px solid #fbcfe8; }
@@ -109,29 +94,17 @@
         .badge-sports { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
         .badge-workshop { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
 
-        .scanner-viewport {
-            background: #0b132b;
-            border-radius: 16px;
-            padding: 2.5rem;
-            position: relative;
+        #reader {
+            width: 100%;
+            background: #000;
+            border-radius: 12px;
             overflow: hidden;
-            border: 2px dashed #c5a059;
-            text-align: center;
-            color: #ffffff;
+            min-height: 280px;
         }
-        .scan-laser {
-            position: absolute;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, #22c55e, transparent);
-            box-shadow: 0 0 15px #22c55e;
-            animation: scanAnim 2.4s infinite ease-in-out;
-        }
-        @keyframes scanAnim {
-            0% { top: 15%; opacity: 0.2; }
-            50% { top: 85%; opacity: 1; }
-            100% { top: 15%; opacity: 0.2; }
+        #reader video {
+            width: 100% !important;
+            height: auto !important;
+            border-radius: 12px;
         }
         #toastContainer {
             position: fixed;
@@ -169,7 +142,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="tabLink-events" href="#events" onclick="switchTab('events')">
+                        <a class="nav-link" id="tabLink-events" href="#events" onclick="switchTab('dashboard')">
                             <i class="bi bi-calendar3 me-1"></i> Events
                         </a>
                     </li>
@@ -180,7 +153,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" id="tabLink-scanner" href="#scanner" onclick="switchTab('scanner')">
-                            <i class="bi bi-qr-code-scan me-1 text-warning"></i> Gate Scanner
+                            <i class="bi bi-camera-video me-1 text-warning"></i> Live Camera Scanner
                         </a>
                     </li>
                     <li class="nav-item">
@@ -191,6 +164,9 @@
                 </ul>
 
                 <div class="d-flex align-items-center gap-3 ms-auto">
+                    <a href="../student/" class="btn btn-warning rounded-pill btn-sm px-3 fw-bold text-dark shadow-sm">
+                        <i class="bi bi-mortarboard-fill me-1"></i> Student Portal
+                    </a>
                     <a href="../index.html" class="btn btn-outline-light rounded-pill btn-sm px-3 fw-semibold">
                         <i class="bi bi-box-arrow-up-right me-1"></i> Public Portal
                     </a>
@@ -203,7 +179,7 @@
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
                                 <li class="px-3 py-2 border-bottom">
-                                    <small class="text-muted d-block">Logged in as:</small>
+                                    <small class="text-muted d-block">Official Email:</small>
                                     <span class="fw-bold text-dark small" id="adminDisplayEmail">admin@evenza.com</span>
                                 </li>
                                 <li>
@@ -226,10 +202,9 @@
     </nav>
 </header>
 
-<!-- Main Container -->
 <main class="container py-4 flex-grow-1">
 
-    <!-- 1. LOGIN VIEW (Shown when unauthenticated) -->
+    <!-- 1. LOGIN VIEW -->
     <div id="view-login" style="display: none;">
         <div class="row justify-content-center py-5">
             <div class="col-lg-5 col-md-7">
@@ -245,43 +220,31 @@
                 <div class="card evenza-card border-0 shadow-lg">
                     <div class="card-header text-center py-3 bg-white border-bottom">
                         <i class="bi bi-shield-lock-fill fs-2 text-warning mb-1 d-block"></i>
-                        <h5 class="fw-bold mb-0 text-dark">Secure Staff Portal</h5>
+                        <h5 class="fw-bold mb-0 text-dark">Staff Credentials</h5>
                     </div>
                     <div class="card-body p-4">
                         <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
                             <div class="mb-3">
-                                <label for="loginEmail" class="form-label small fw-bold text-secondary">Administrator Email</label>
+                                <label for="loginEmail" class="form-label small fw-bold text-secondary">Administrator Email *</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
-                                    <input type="email" class="form-control border-start-0" id="loginEmail" value="admin@evenza.com" placeholder="admin@evenza.com" required>
+                                    <input type="email" class="form-control border-start-0" id="loginEmail" placeholder="admin@evenza.com" required>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <label for="loginPassword" class="form-label small fw-bold text-secondary">Password</label>
-                                    <span class="badge bg-light text-secondary border small">Default: admin123</span>
-                                </div>
+                            <div class="mb-4">
+                                <label for="loginPassword" class="form-label small fw-bold text-secondary">Password *</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-key"></i></span>
-                                    <input type="password" class="form-control border-start-0 border-end-0" id="loginPassword" value="admin123" placeholder="••••••••" required>
+                                    <input type="password" class="form-control border-start-0 border-end-0" id="loginPassword" placeholder="••••••••" required>
                                     <button class="btn btn-outline-secondary border-start-0 bg-light" type="button" onclick="togglePasswordVisibility('loginPassword', this)">
                                         <i class="bi bi-eye"></i>
                                     </button>
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-warning w-100 rounded-pill py-2 fw-bold text-dark shadow-sm mb-3">
+                            <button type="submit" class="btn btn-warning w-100 rounded-pill py-2 fw-bold text-dark shadow-sm">
                                 <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Console
                             </button>
-
-                            <div class="p-3 bg-light rounded-3 border small">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <span class="text-muted"><i class="bi bi-info-circle me-1 text-primary"></i> 1-Click Demo Access:</span>
-                                    <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-bold" onclick="autoLoginAdmin()">
-                                        Instant Login
-                                    </button>
-                                </div>
-                            </div>
                         </form>
                     </div>
                 </div>
@@ -314,7 +277,7 @@
                         <i class="bi bi-calendar-event"></i>
                     </div>
                     <div>
-                        <h3 class="fw-bold text-dark mb-0" id="kpiTotalEvents">3</h3>
+                        <h3 class="fw-bold text-dark mb-0" id="kpiTotalEvents">1</h3>
                         <span class="text-muted small">Total Events Hosted</span>
                     </div>
                 </div>
@@ -325,7 +288,7 @@
                         <i class="bi bi-ticket-perforated"></i>
                     </div>
                     <div>
-                        <h3 class="fw-bold text-dark mb-0" id="kpiTotalRegistrations">4</h3>
+                        <h3 class="fw-bold text-dark mb-0" id="kpiTotalRegistrations">0</h3>
                         <span class="text-muted small">Confirmed Bookings</span>
                     </div>
                 </div>
@@ -336,7 +299,7 @@
                         <i class="bi bi-qr-code-scan"></i>
                     </div>
                     <div>
-                        <h3 class="fw-bold text-dark mb-0" id="kpiCheckedIn">1</h3>
+                        <h3 class="fw-bold text-dark mb-0" id="kpiCheckedIn">0</h3>
                         <span class="text-muted small">Checked In / Attended</span>
                     </div>
                 </div>
@@ -347,7 +310,7 @@
                         <i class="bi bi-mortarboard"></i>
                     </div>
                     <div>
-                        <h3 class="fw-bold text-dark mb-0" id="kpiTotalStudents">3</h3>
+                        <h3 class="fw-bold text-dark mb-0" id="kpiTotalStudents">0</h3>
                         <span class="text-muted small">Registered Students</span>
                     </div>
                 </div>
@@ -361,7 +324,7 @@
                     <h5 class="fw-bold text-dark mb-0">
                         <i class="bi bi-gear-wide-connected text-primary me-2"></i>Campus Events Directory
                     </h5>
-                    <span class="badge bg-light text-dark border" id="eventsCountBadge">3 events</span>
+                    <span class="badge bg-light text-dark border" id="eventsCountBadge">1 event</span>
                 </div>
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <div class="input-group input-group-sm" style="max-width: 240px;">
@@ -369,7 +332,7 @@
                         <input type="text" class="form-control border-start-0" id="eventTableFilterInput" placeholder="Filter events..." oninput="filterEventsTable()">
                     </div>
                     <button class="btn btn-sm btn-warning text-dark fw-bold rounded-pill px-3 shadow-sm" onclick="switchTab('scanner')">
-                        <i class="bi bi-qr-code-scan me-1"></i> Launch QR Scanner
+                        <i class="bi bi-camera-video me-1"></i> Launch Camera Scanner
                     </button>
                 </div>
             </div>
@@ -405,7 +368,7 @@
                     <i class="bi bi-file-earmark-arrow-down me-1"></i> Export to CSV
                 </button>
                 <button class="btn btn-outline-dark rounded-pill px-3 fw-bold" onclick="switchTab('scanner')">
-                    <i class="bi bi-qr-code-scan me-1"></i> Gate Scanner
+                    <i class="bi bi-camera-video me-1"></i> Camera Scanner
                 </button>
             </div>
         </div>
@@ -444,7 +407,7 @@
                         <tr>
                             <th class="ps-3">#</th>
                             <th>Student Delegate</th>
-                            <th>USN / College</th>
+                            <th>USN / Course</th>
                             <th>Event Registered</th>
                             <th>Pass / Ticket ID</th>
                             <th>Check-In Status</th>
@@ -459,26 +422,65 @@
         </div>
     </div>
 
-    <!-- 4. QR GATE SCANNER VIEW -->
+    <!-- 4. REAL LIVE CAMERA QR GATE SCANNER VIEW -->
     <div id="view-scanner" style="display: none;">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
+            <div class="col-lg-9">
                 <div class="text-center mb-4">
                     <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold text-uppercase mb-2">Gate Entry Terminal</span>
-                    <h3 class="fw-bold text-dark">Live Ticket Pass Verification</h3>
-                    <p class="text-muted small">Scan QR codes or enter unique Evenza pass numbers to check in registered students.</p>
+                    <h3 class="fw-bold text-dark">Live Optical Camera Pass Scanner</h3>
+                    <p class="text-muted small">Uses your computer or mobile camera to scan student QR entry passes in real time.</p>
                 </div>
 
                 <div class="card evenza-card border-0 shadow-lg p-4 mb-4">
-                    <div class="scanner-viewport mb-4">
-                        <div class="scan-laser"></div>
-                        <i class="bi bi-qr-code fs-1 text-warning mb-2 d-block"></i>
-                        <h5 class="fw-bold mb-1">Live Optical Scanner Ready</h5>
-                        <p class="text-white-50 small mb-0">Point attendee's printed ticket or phone screen towards scanner</p>
+                    <!-- Camera Controls Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 pb-3 border-bottom">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-secondary" id="scannerStatusBadge">Camera Offline</span>
+                            <div class="input-group input-group-sm" style="max-width: 250px;">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-camera"></i></span>
+                                <select class="form-select" id="cameraSelect">
+                                    <option value="auto">Auto-Detect Camera</option>
+                                    <option value="environment">Rear Camera</option>
+                                    <option value="user">Front Webcam</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-success rounded-pill px-4 fw-bold btn-sm shadow-sm" id="startScannerBtn" onclick="startCameraScanner()">
+                                <i class="bi bi-camera-video-fill me-1"></i> Start Camera
+                            </button>
+                            <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold btn-sm shadow-sm d-none" id="stopScannerBtn" onclick="stopCameraScanner()">
+                                <i class="bi bi-camera-video-off-fill me-1"></i> Stop Camera
+                            </button>
+                        </div>
                     </div>
 
+                    <!-- Live Camera Reader Viewport -->
+                    <div class="mb-4 position-relative">
+                        <div id="reader-placeholder" class="p-5 text-center bg-dark text-white rounded-4 border">
+                            <i class="bi bi-camera-video fs-1 text-warning mb-2 d-block"></i>
+                            <h5 class="fw-bold">Optical Camera Feed Inactive</h5>
+                            <p class="text-white-50 small mb-3">Click "Start Camera" above to activate your device's webcam or mobile camera.</p>
+                            <button class="btn btn-outline-warning rounded-pill px-4 btn-sm fw-bold" onclick="startCameraScanner()">
+                                <i class="bi bi-play-circle me-1"></i> Turn On Camera Feed
+                            </button>
+                        </div>
+                        <div id="reader" class="d-none"></div>
+                    </div>
+
+                    <!-- Alert message on camera permission error -->
+                    <div id="scannerAlertMsg" class="alert alert-warning d-none rounded-3 small"></div>
+
+                    <!-- File input fallback -->
+                    <div class="p-3 bg-light rounded-3 border mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <span class="small text-muted"><i class="bi bi-image me-1 text-primary"></i> Can't use live camera? Upload or drop pass screenshot:</span>
+                        <input type="file" id="qrFileInput" accept="image/*" class="form-control form-control-sm" style="max-width: 250px;" onchange="handleQRImageUpload(event)">
+                    </div>
+
+                    <!-- Manual Fallback Input -->
                     <div class="mb-3">
-                        <label for="manualPassInput" class="form-label small fw-bold text-secondary">Manual Pass ID / USN Verification</label>
+                        <label for="manualPassInput" class="form-label small fw-bold text-secondary">Manual Ticket Code / Student USN Input</label>
                         <div class="input-group input-group-lg">
                             <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-upc-scan"></i></span>
                             <input type="text" class="form-control border-start-0 font-monospace" id="manualPassInput" placeholder="e.g. EVZ-20261025-E007-0046-5821 or U18IN24S0046" onkeypress="if(event.key==='Enter') verifyTicketNow()">
@@ -486,12 +488,6 @@
                                 <i class="bi bi-check2-circle me-1"></i> Verify Pass
                             </button>
                         </div>
-                    </div>
-
-                    <!-- Quick Sample Buttons -->
-                    <div class="d-flex align-items-center gap-2 flex-wrap mb-4">
-                        <span class="text-muted small">Quick Test Samples:</span>
-                        <div id="quickSamplePassesContainer" class="d-flex gap-1 flex-wrap"></div>
                     </div>
 
                     <!-- Verification Result Display -->
@@ -685,24 +681,26 @@
 <footer class="bg-white border-top py-3 text-center text-muted small mt-auto">
     <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
-            &copy; 2026 <strong>Evenza</strong> &bull; Campus Event Management System
+            &copy; 2026 <strong>Evenza</strong> &bull; Campus Event Management System &bull; BMS CCM
         </div>
         <div class="d-flex gap-3">
+            <a href="../student/" class="text-decoration-none text-muted">Student Portal</a>
             <a href="../index.html" class="text-decoration-none text-muted">Public Portal</a>
-            <a href="https://github.com/shreegowribk/event-management" target="_blank" class="text-decoration-none text-muted">GitHub Repository</a>
         </div>
     </div>
 </footer>
 
+<!-- HTML5 QR Code Library for Live Camera Scanning -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 // =========================================================================
-// DATA INITIALIZATION & LOCALSTORAGE MANAGEMENT
+// DATA ACCESS & LIVE STATE
 // =========================================================================
 
-const DEFAULT_EVENTS = [
+const REAL_INITIAL_EVENTS = [
     {
         id: 7,
         name: "Conference: Confluence 2026",
@@ -710,84 +708,17 @@ const DEFAULT_EVENTS = [
         date: "2026-10-25",
         time: "10:00",
         venue: "BMS CCM Main Auditorium",
-        description: "2nd Inter-College Academic Conference - Confluence 2026 bringing together faculty, research scholars, and students.",
+        description: "2nd Inter-College Academic Conference - Confluence 2026 bringing together scholars, students, and faculty.",
         maxSeats: 300,
         status: "upcoming"
-    },
-    {
-        id: 8,
-        name: "MINDTRICK: Technical Quiz & Coding",
-        category: "Technical",
-        date: "2026-10-28",
-        time: "10:00",
-        venue: "BMSCCM Seminar Hall",
-        description: "Intense logical reasoning, algothon challenges, and tech trivia.",
-        maxSeats: 500,
-        status: "upcoming"
-    },
-    {
-        id: 9,
-        name: "CONFERENCE: AI in Enterprise",
-        category: "Technical",
-        date: "2026-10-30",
-        time: "10:00",
-        venue: "BMSCCM Seminar Hall",
-        description: "Keynote talks by industry leaders on modern AI architecture and cloud systems.",
-        maxSeats: 500,
-        status: "upcoming"
-    }
-];
-
-const DEFAULT_REGISTRATIONS = [
-    {
-        id: "EVZ-20261001-E007-S002-EBA297",
-        eventId: 7,
-        eventName: "Conference: Confluence 2026",
-        name: "SHREE GOWRI BK",
-        usn: "U18IN24S0046",
-        email: "shreegowribk@gmail.com",
-        phone: "9731549988",
-        college: "BCA, BMS CCM",
-        registeredAt: "2026-10-01 10:50:19",
-        status: "confirmed",
-        checkedIn: true,
-        checkedInAt: "2026-10-01 10:55:00"
-    },
-    {
-        id: "EVZ-20261002-E007-S001-A19F83",
-        eventId: 7,
-        eventName: "Conference: Confluence 2026",
-        name: "Rahul Sharma",
-        usn: "1EV21MC001",
-        email: "rahul@evenza.com",
-        phone: "9876543210",
-        college: "BCA, BMS CCM",
-        registeredAt: "2026-10-02 11:20:00",
-        status: "confirmed",
-        checkedIn: false,
-        checkedInAt: null
-    },
-    {
-        id: "EVZ-20261003-E007-S003-B48102",
-        eventId: 7,
-        eventName: "Conference: Confluence 2026",
-        name: "Namratha.K.H",
-        usn: "U18IN24S0059",
-        email: "namrathakh11@gmail.com",
-        phone: "9663939375",
-        college: "BCA, BMS CCM",
-        registeredAt: "2026-10-03 14:15:30",
-        status: "confirmed",
-        checkedIn: false,
-        checkedInAt: null
     }
 ];
 
 function getStoredEvents() {
     const raw = localStorage.getItem('evenza_events');
     if (!raw) {
-        localStorage.setItem('evenza_events', JSON.stringify(DEFAULT_EVENTS));
-        return DEFAULT_EVENTS;
+        localStorage.setItem('evenza_events', JSON.stringify(REAL_INITIAL_EVENTS));
+        return REAL_INITIAL_EVENTS;
     }
     return JSON.parse(raw);
 }
@@ -801,19 +732,7 @@ function saveEvents(events) {
 
 function getStoredRegistrations() {
     const raw = localStorage.getItem('evenza_registrations');
-    if (!raw) {
-        localStorage.setItem('evenza_registrations', JSON.stringify(DEFAULT_REGISTRATIONS));
-        return DEFAULT_REGISTRATIONS;
-    }
-    const regs = JSON.parse(raw);
-    // Standardize IDs and fields
-    return regs.map(r => ({
-        ...r,
-        eventId: r.eventId || 7,
-        eventName: r.eventName || "Conference: Confluence 2026",
-        status: r.status || 'confirmed',
-        checkedIn: !!r.checkedIn
-    }));
+    return raw ? JSON.parse(raw) : [];
 }
 
 function saveRegistrations(regs) {
@@ -827,7 +746,6 @@ function isSessionAdminLoggedIn() {
     return localStorage.getItem('evenza_admin_logged_in') === 'true';
 }
 
-// Toast System
 function showToast(message, type = 'success') {
     const container = document.getElementById('toastContainer');
     if (!container) return;
@@ -848,7 +766,37 @@ function showToast(message, type = 'success') {
     }, 4000);
 }
 
-// Password toggle helper
+// Audio Synthesizer for Real Gate Sound Feedback
+function playSoundFeedback(type) {
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        if (type === 'success') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(784, ctx.currentTime);
+            osc.frequency.setValueAtTime(1046.5, ctx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.35);
+        } else {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(220, ctx.currentTime);
+            osc.frequency.setValueAtTime(160, ctx.currentTime + 0.12);
+            gain.gain.setValueAtTime(0.35, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.4);
+        }
+    } catch(e) {}
+}
+
 function togglePasswordVisibility(fieldId, btn) {
     const input = document.getElementById(fieldId);
     if (!input) return;
@@ -890,7 +838,7 @@ function switchTab(tabName) {
     } else if (tabName === 'roster') {
         renderRosterTable();
     } else if (tabName === 'scanner') {
-        renderQuickSamplePasses();
+        enumerateCameraDevices();
     }
 }
 
@@ -919,24 +867,17 @@ function handleAdminLogin(e) {
     const email = document.getElementById('loginEmail').value.trim();
     const pass = document.getElementById('loginPassword').value.trim();
 
-    if (email === "admin@evenza.com" && (pass === "admin123" || pass.length >= 6)) {
+    if (email === "admin@evenza.com" && pass.length >= 6) {
         localStorage.setItem('evenza_admin_logged_in', 'true');
         showToast("Welcome to Evenza Console, Evenza Administrator!");
         switchTab('dashboard');
     } else {
-        showToast("Invalid credentials. Please use admin@evenza.com and admin123", "danger");
+        showToast("Invalid credentials. Please verify your administrator email and password.", "danger");
     }
 }
 
-function autoLoginAdmin() {
-    document.getElementById('loginEmail').value = "admin@evenza.com";
-    document.getElementById('loginPassword').value = "admin123";
-    localStorage.setItem('evenza_admin_logged_in', 'true');
-    showToast("Logged in as Super Administrator!");
-    switchTab('dashboard');
-}
-
 function handleAdminLogout() {
+    stopCameraScanner();
     localStorage.removeItem('evenza_admin_logged_in');
     showToast("Signed out of administrator console.", "info");
     showView('login');
@@ -949,14 +890,12 @@ function updateKPIs() {
 
     const confirmedRegs = regs.filter(r => r.status === 'confirmed');
     const checkedInRegs = confirmedRegs.filter(r => r.checkedIn);
-
-    // Unique students by USN or Email
     const uniqueStudents = new Set(regs.map(r => r.usn || r.email));
 
     document.getElementById('kpiTotalEvents').textContent = events.length;
     document.getElementById('kpiTotalRegistrations').textContent = confirmedRegs.length;
     document.getElementById('kpiCheckedIn').textContent = checkedInRegs.length;
-    document.getElementById('kpiTotalStudents').textContent = Math.max(uniqueStudents.size, 3);
+    document.getElementById('kpiTotalStudents').textContent = uniqueStudents.size;
     document.getElementById('eventsCountBadge').textContent = `${events.length} event${events.length === 1 ? '' : 's'}`;
 }
 
@@ -1040,7 +979,6 @@ function filterEventsTable() {
     });
 }
 
-// Add Event
 function openAddEventModal() {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('eventDate').value = today;
@@ -1073,7 +1011,6 @@ function handleAddEventSubmit(e) {
     showToast(`Event "${newEvent.name}" published successfully!`);
 }
 
-// Edit Event
 function openEditEventModal(eventId) {
     const events = getStoredEvents();
     const evt = events.find(e => e.id == eventId);
@@ -1122,7 +1059,6 @@ function deleteEvent(eventId) {
     showToast("Event removed from directory.", "info");
 }
 
-// Roster Table & Filtering
 function populateEventFilters() {
     const events = getStoredEvents();
     const select = document.getElementById('rosterEventFilter');
@@ -1207,9 +1143,9 @@ function toggleRosterCheckIn(ticketId) {
     item.checkedInAt = item.checkedIn ? new Date().toISOString().replace('T', ' ').substring(0, 19) : null;
     saveRegistrations(regs);
     showToast(item.checkedIn ? `Marked ${item.name} as Checked In!` : `Check-in reverted for ${item.name}.`, item.checkedIn ? 'success' : 'info');
+    playSoundFeedback(item.checkedIn ? 'success' : 'error');
 }
 
-// Export CSV
 function exportAttendeesCSV() {
     const regs = getStoredRegistrations();
     if (regs.length === 0) {
@@ -1242,17 +1178,133 @@ function exportAttendeesCSV() {
     showToast("Attendee CSV export generated!");
 }
 
-// Scanner & Pass Verifier
-function renderQuickSamplePasses() {
-    const regs = getStoredRegistrations();
-    const container = document.getElementById('quickSamplePassesContainer');
-    if (!container) return;
+// =========================================================================
+// REAL LIVE OPTICAL CAMERA QR SCANNER (HTML5-QRCode)
+// =========================================================================
+let html5QrScannerInstance = null;
+let isScannerRunning = false;
 
-    container.innerHTML = regs.slice(0, 3).map(r => `
-        <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill font-monospace" style="font-size: 0.75rem;" onclick="document.getElementById('manualPassInput').value='${r.id}'; verifyTicketNow();">
-            ${r.usn}
-        </button>
-    `).join('');
+function enumerateCameraDevices() {
+    if (typeof Html5Qrcode !== 'undefined') {
+        Html5Qrcode.getCameras().then(devices => {
+            const sel = document.getElementById('cameraSelect');
+            if (sel && devices && devices.length > 0) {
+                sel.innerHTML = '<option value="auto">Auto-Detect Camera</option>';
+                devices.forEach((device, index) => {
+                    const opt = document.createElement('option');
+                    opt.value = device.id;
+                    opt.textContent = device.label || `Camera ${index + 1}`;
+                    sel.appendChild(opt);
+                });
+            }
+        }).catch(() => {});
+    }
+}
+
+async function startCameraScanner() {
+    const readerDiv = document.getElementById('reader');
+    const placeholder = document.getElementById('reader-placeholder');
+    const startBtn = document.getElementById('startScannerBtn');
+    const stopBtn = document.getElementById('stopScannerBtn');
+    const statusBadge = document.getElementById('scannerStatusBadge');
+    const alertMsg = document.getElementById('scannerAlertMsg');
+
+    if (alertMsg) alertMsg.classList.add('d-none');
+    placeholder.classList.add('d-none');
+    readerDiv.classList.remove('d-none');
+
+    statusBadge.className = 'badge bg-warning text-dark';
+    statusBadge.textContent = 'Requesting Camera Access...';
+
+    if (!html5QrScannerInstance) {
+        html5QrScannerInstance = new Html5Qrcode("reader");
+    }
+
+    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+    const selectedSource = document.getElementById('cameraSelect').value;
+
+    try {
+        if (selectedSource && selectedSource !== 'auto' && selectedSource !== 'environment' && selectedSource !== 'user') {
+            await html5QrScannerInstance.start(selectedSource, config, onCameraScanSuccess);
+        } else if (selectedSource === 'user') {
+            await html5QrScannerInstance.start({ facingMode: "user" }, config, onCameraScanSuccess);
+        } else {
+            // Default: try environment (rear) camera, fallback to user (webcam)
+            try {
+                await html5QrScannerInstance.start({ facingMode: "environment" }, config, onCameraScanSuccess);
+            } catch(e) {
+                await html5QrScannerInstance.start({ facingMode: "user" }, config, onCameraScanSuccess);
+            }
+        }
+
+        isScannerRunning = true;
+        startBtn.classList.add('d-none');
+        stopBtn.classList.remove('d-none');
+        statusBadge.className = 'badge bg-success text-white';
+        statusBadge.textContent = 'Live Camera Active';
+        showToast("Live camera active. Scan student QR code to verify.");
+    } catch(err) {
+        console.error("Camera start failed:", err);
+        statusBadge.className = 'badge bg-danger text-white';
+        statusBadge.textContent = 'Camera Unavailable';
+        placeholder.classList.remove('d-none');
+        readerDiv.classList.add('d-none');
+
+        if (alertMsg) {
+            alertMsg.classList.remove('d-none');
+            alertMsg.innerHTML = `
+                <div class="fw-bold mb-1"><i class="bi bi-camera-video-off me-1"></i> Camera Permission / Detection Notice</div>
+                <div>${err.message || err}. Please ensure camera access is allowed in your browser settings, or use the file upload / manual input below.</div>
+            `;
+        }
+    }
+}
+
+async function stopCameraScanner() {
+    if (html5QrScannerInstance && isScannerRunning) {
+        try {
+            await html5QrScannerInstance.stop();
+            isScannerRunning = false;
+        } catch(e) {}
+    }
+    const readerDiv = document.getElementById('reader');
+    const placeholder = document.getElementById('reader-placeholder');
+    const startBtn = document.getElementById('startScannerBtn');
+    const stopBtn = document.getElementById('stopScannerBtn');
+    const statusBadge = document.getElementById('scannerStatusBadge');
+
+    if (readerDiv) readerDiv.classList.add('d-none');
+    if (placeholder) placeholder.classList.remove('d-none');
+    if (startBtn) startBtn.classList.remove('d-none');
+    if (stopBtn) stopBtn.classList.add('d-none');
+    if (statusBadge) {
+        statusBadge.className = 'badge bg-secondary';
+        statusBadge.textContent = 'Camera Offline';
+    }
+}
+
+function onCameraScanSuccess(decodedText) {
+    let ticketCode = decodedText;
+    const match = decodedText.match(/[?&]ticket=([A-Za-z0-9\-]+)/i) || decodedText.match(/(EVZ\-[A-Za-z0-9\-]+)/i);
+    if (match) ticketCode = match[1];
+
+    document.getElementById('manualPassInput').value = ticketCode;
+    verifyTicketNow();
+}
+
+function handleQRImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!html5QrScannerInstance) {
+        html5QrScannerInstance = new Html5Qrcode("reader");
+    }
+
+    html5QrScannerInstance.scanFile(file, true).then(decodedText => {
+        onCameraScanSuccess(decodedText);
+    }).catch(err => {
+        showToast("No clear QR code detected in the uploaded image.", "warning");
+    });
 }
 
 function verifyTicketNow() {
@@ -1264,23 +1316,25 @@ function verifyTicketNow() {
     }
 
     const regs = getStoredRegistrations();
-    const ticket = regs.find(r => r.id.toLowerCase() === input.toLowerCase() || (r.usn && r.usn.toLowerCase() === input.toLowerCase()));
+    const ticket = regs.find(r => (r.id && r.id.toLowerCase() === input.toLowerCase()) || (r.usn && r.usn.toLowerCase() === input.toLowerCase()));
 
     resultBox.style.display = 'block';
 
     if (!ticket) {
+        playSoundFeedback('error');
         resultBox.innerHTML = `
             <div class="alert alert-danger d-flex align-items-center gap-3 p-4 rounded-4 border-0 shadow-sm">
                 <i class="bi bi-x-circle-fill fs-1 text-danger"></i>
                 <div>
                     <h5 class="fw-bold mb-1">INVALID PASS / RECORD NOT FOUND</h5>
-                    <p class="mb-0 small">No delegate matches code: <strong class="font-monospace">${input}</strong>. Please check booking details.</p>
+                    <p class="mb-0 small">No delegate matches code: <strong class="font-monospace">${input}</strong>. Please check student registration.</p>
                 </div>
             </div>
         `;
         return;
     }
 
+    playSoundFeedback('success');
     resultBox.innerHTML = `
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden ${ticket.checkedIn ? 'border border-2 border-warning' : 'border border-2 border-success'}">
             <div class="card-header py-3 ${ticket.checkedIn ? 'bg-warning text-dark' : 'bg-success text-white'} d-flex justify-content-between align-items-center">
@@ -1298,7 +1352,7 @@ function verifyTicketNow() {
                         <div class="p-2 bg-light rounded-3 small mb-2 border">
                             <span class="text-secondary">Event:</span> <strong>${ticket.eventName || 'Conference 2026'}</strong>
                         </div>
-                        <div class="text-muted small">Registered: ${ticket.registeredAt || '2026-10-01'}</div>
+                        <div class="text-muted small">Registered: ${ticket.registeredAt || 'Today'}</div>
                     </div>
                     <div class="col-md-4 text-center">
                         <button class="btn btn-lg ${ticket.checkedIn ? 'btn-outline-danger' : 'btn-success'} w-100 rounded-pill fw-bold shadow-sm py-3" onclick="toggleRosterCheckIn('${ticket.id}'); verifyTicketNow();">
@@ -1311,7 +1365,6 @@ function verifyTicketNow() {
     `;
 }
 
-// Profile & Password handlers
 function handleProfileUpdate(e) {
     e.preventDefault();
     const name = document.getElementById('profileName').value.trim();
@@ -1328,9 +1381,7 @@ function handlePasswordUpdate(e) {
     showToast("Master password updated successfully!");
 }
 
-// Initial Boot
 document.addEventListener('DOMContentLoaded', () => {
-    // Check initial hash route
     const hash = window.location.hash.replace('#', '') || 'dashboard';
 
     if (isSessionAdminLoggedIn()) {

@@ -11,6 +11,14 @@
       "destination": "/admin/index.html"
     },
     {
+      "source": "/student",
+      "destination": "/student/index.html"
+    },
+    {
+      "source": "/student/:path*",
+      "destination": "/student/index.html"
+    },
+    {
       "source": "/evenza/admin",
       "destination": "/admin/index.html"
     },

@@ -599,7 +599,6 @@ function renderStudentPasses() {
     const myRegs = regs.filter(r => 
         ((r.usn && r.usn.toUpperCase() === student.usn.toUpperCase()) || 
          (r.email && r.email.toLowerCase() === student.email.toLowerCase())) &&
-        eventIds.has(String(r.eventId)) &&
         r.status !== 'cancelled'
     );
 
@@ -617,30 +616,122 @@ function renderStudentPasses() {
         return;
     }
 
-    container.innerHTML = myRegs.map(reg => `
-        <div class="p-3 mb-3 rounded-4 border bg-light d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div>
-                <span class="badge bg-warning text-dark font-monospace mb-1">${reg.id}</span>
-                <h5 class="fw-bold text-dark mb-1">${reg.eventName || 'Campus Event'}</h5>
-                <div class="text-muted small">
-                    <i class="bi bi-clock-history me-1"></i> Registered on ${reg.registeredAt || 'Today'} &bull;
-                    <span class="badge ${reg.checkedIn ? 'bg-success' : 'bg-secondary'} rounded-pill ms-1">
-                        ${reg.checkedIn ? 'Checked In' : 'Entry Pending'}
-                    </span>
+    const hasOrphaned = myRegs.some(r => !eventIds.has(String(r.eventId)));
+    const bannerHtml = hasOrphaned ? `
+        <div class="alert alert-warning border-0 shadow-sm rounded-4 p-3 mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-exclamation-triangle-fill text-warning fs-4"></i>
+                <div>
+                    <div class="fw-bold text-dark">Unlinked / Removed Event Pass Detected</div>
+                    <small class="text-muted">An event associated with your pass is no longer active in the directory.</small>
                 </div>
             </div>
-            <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-dark rounded-pill px-3 fw-bold" onclick="viewTicketModal('${reg.id}')">
-                    <i class="bi bi-qr-code me-1"></i> View Pass
-                </button>
-                ${!reg.checkedIn ? `
-                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="cancelRegistration('${reg.id}')">
-                        Cancel
-                    </button>
-                ` : ''}
-            </div>
+            <button class="btn btn-sm btn-outline-danger rounded-pill fw-bold px-3 shadow-sm" onclick="deleteAllOrphanedPasses()">
+                <i class="bi bi-trash-fill me-1"></i> Clean Up Invalid Passes
+            </button>
         </div>
-    `).join('');
+    ` : '';
+
+    container.innerHTML = bannerHtml + myRegs.map(reg => {
+        const eventExists = eventIds.has(String(reg.eventId));
+
+        if (!eventExists) {
+            return `
+                <div class="p-3 mb-3 rounded-4 border border-danger border-opacity-25 bg-danger bg-opacity-10 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-secondary font-monospace">${reg.id}</span>
+                            <span class="badge bg-danger rounded-pill"><i class="bi bi-exclamation-octagon-fill me-1"></i>Event No Longer Exists</span>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-1">${reg.eventName || 'Campus Event'}</h5>
+                        <small class="text-danger d-block">
+                            <i class="bi bi-info-circle me-1"></i>This event was removed by the administrator. This pass is void.
+                        </small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-danger rounded-pill px-3 fw-bold shadow-sm" onclick="deleteStudentPass('${reg.id}')">
+                            <i class="bi bi-trash-fill me-1"></i> Delete Pass
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="p-3 mb-3 rounded-4 border bg-light d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <span class="badge bg-warning text-dark font-monospace mb-1">${reg.id}</span>
+                    <h5 class="fw-bold text-dark mb-1">${reg.eventName || 'Campus Event'}</h5>
+                    <div class="text-muted small">
+                        <i class="bi bi-clock-history me-1"></i> Registered on ${reg.registeredAt || 'Today'} &bull;
+                        <span class="badge ${reg.checkedIn ? 'bg-success' : 'bg-secondary'} rounded-pill ms-1">
+                            ${reg.checkedIn ? 'Checked In' : 'Entry Pending'}
+                        </span>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-dark rounded-pill px-3 fw-bold" onclick="viewTicketModal('${reg.id}')">
+                        <i class="bi bi-qr-code me-1"></i> View Pass
+                    </button>
+                    ${!reg.checkedIn ? `
+                        <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="cancelRegistration('${reg.id}')">
+                            Cancel
+                        </button>
+                    ` : `
+                        <button class="btn btn-sm btn-outline-danger rounded-pill px-2" title="Delete Pass" onclick="deleteStudentPass('${reg.id}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    `}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function deleteStudentPass(ticketId) {
+    if (!confirm("Are you sure you want to delete this event pass?")) return;
+    let regs = getStoredRegistrations();
+    regs = regs.filter(r => String(r.id) !== String(ticketId));
+    saveRegistrations(regs);
+
+    if (window.EvenzaCloud && window.EvenzaCloud.isReady()) {
+        if (typeof window.EvenzaCloud.deleteRegistration === 'function') {
+            window.EvenzaCloud.deleteRegistration(ticketId).catch(err => console.warn('Cloud delete error:', err));
+        }
+    }
+
+    renderStudentPasses();
+    renderQuickEvents();
+    showToast("Event pass removed successfully.", "info");
+}
+
+function deleteAllOrphanedPasses() {
+    if (!confirm("Are you sure you want to delete all passes for events that no longer exist?")) return;
+    const events = getStoredEvents();
+    const eventIds = new Set(events.map(e => String(e.id)));
+    const student = getActiveStudentSession();
+    let regs = getStoredRegistrations();
+
+    const toDelete = regs.filter(r => 
+        ((r.usn && r.usn.toUpperCase() === student.usn.toUpperCase()) || 
+         (r.email && r.email.toLowerCase() === student.email.toLowerCase())) &&
+        !eventIds.has(String(r.eventId))
+    );
+
+    regs = regs.filter(r => !toDelete.some(d => String(d.id) === String(r.id)));
+    saveRegistrations(regs);
+
+    if (window.EvenzaCloud && window.EvenzaCloud.isReady()) {
+        toDelete.forEach(d => {
+            if (typeof window.EvenzaCloud.deleteRegistration === 'function') {
+                window.EvenzaCloud.deleteRegistration(d.id).catch(() => {});
+            }
+        });
+    }
+
+    renderStudentPasses();
+    renderQuickEvents();
+    showToast(`Removed ${toDelete.length} invalid event pass(es).`, "info");
 }
 
 function renderQuickEvents() {

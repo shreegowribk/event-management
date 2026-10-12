@@ -368,6 +368,9 @@
                 <p class="text-muted small mb-0">Real-time database of confirmed student delegates, digital tickets, and gate check-in status.</p>
             </div>
             <div class="d-flex gap-2">
+                <button class="btn btn-outline-danger rounded-pill px-3 shadow-sm fw-bold" onclick="purgeAllOrphanedRegistrations()">
+                    <i class="bi bi-trash3 me-1"></i> Clean Invalid Passes
+                </button>
                 <button class="btn btn-success rounded-pill px-3 shadow-sm fw-bold" onclick="exportAttendeesCSV()">
                     <i class="bi bi-file-earmark-arrow-down me-1"></i> Export to CSV
                 </button>
@@ -1185,6 +1188,33 @@ function cleanupOrphanedRegistrations() {
             });
         }
     }
+}
+
+function purgeAllOrphanedRegistrations() {
+    const events = getStoredEvents();
+    const eventIds = new Set(events.map(e => String(e.id)));
+    const regs = getStoredRegistrations();
+    const orphaned = regs.filter(r => !r.eventId || !eventIds.has(String(r.eventId)));
+    if (orphaned.length === 0) {
+        showToast("No invalid or orphaned registrations found. Roster is clean!", "info");
+        return;
+    }
+    if (!confirm(`Found ${orphaned.length} student pass(es) for events that no longer exist. Delete them now?`)) return;
+
+    const validRegs = regs.filter(r => r.eventId && eventIds.has(String(r.eventId)));
+    saveRegistrations(validRegs);
+
+    if (window.EvenzaCloud && window.EvenzaCloud.isReady()) {
+        orphaned.forEach(r => {
+            if (typeof window.EvenzaCloud.deleteRegistration === 'function') {
+                window.EvenzaCloud.deleteRegistration(r.id).catch(() => {});
+            }
+        });
+    }
+
+    renderRosterTable();
+    updateKPIs();
+    showToast(`Successfully purged ${orphaned.length} orphaned pass(es).`, "success");
 }
 
 function deleteRegistration(ticketId) {

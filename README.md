@@ -28,27 +28,29 @@ A comprehensive, responsive web application for college campuses to streamline e
 
 ```text
 event-management/
-├── evenza/              # Production release of Evenza Campus Event Portal
-│   ├── admin/           # Administrative portal and event moderation tools
-│   ├── config/          # Database connection configuration (db.php)
-│   ├── css/             # Custom stylesheet design systems
-│   ├── includes/        # Shared headers, footers, and auth guards
-│   ├── dashboard.php    # Student user dashboard
-│   ├── database.sql     # Database schema and sample event data
-│   ├── event_register.php # Event registration workflow
-│   ├── index.php        # Landing page and event catalog
-│   ├── login.php        # User authentication
-│   ├── profile.php      # User account settings
-│   ├── ticket.php       # E-Ticket generator with QR code
-│   └── README.md        # Evenza-specific documentation
-│
-├── eventza/             # Eventza campus edition
-│   └── ...              # Full mirror module with customized presets
-│
-└── bmsccm/              # BMS College of Commerce & Management edition
-    ├── admin/           # College-specific admin dashboard
-    ├── database.sql     # Database schema
-    └── ...              # Core portal scripts
+├── index.html           # Public Event Showcase & Registration Landing
+├── admin/               # Administrative Console & Live QR Gate Scanner
+│   └── index.html
+├── student/             # Student Portal for Pass Tracking & Self-Service
+│   └── index.html
+├── js/                  # Real-Time Cloud Engine & Persistence
+│   └── firebase-db.js
+├── css/                 # Modern Global Design Tokens & Styles
+│   └── style.css
+├── vercel.json          # Deployment routing & clean URL rewrites
+└── evenza/              # Canonical Full-Stack PHP & MySQL Release
+    ├── admin/           # PHP Administrative portal & moderation tools
+    ├── config/          # MySQL database connection (db.php)
+    ├── css/             # PHP edition stylesheets
+    ├── includes/        # Shared templates, headers & footers
+    ├── dashboard.php    # Student user dashboard
+    ├── database.sql     # MySQL schema
+    ├── event_register.php # Registration workflow
+    ├── index.php        # PHP landing catalog
+    ├── login.php        # PHP user authentication
+    ├── profile.php      # User account settings
+    ├── ticket.php       # E-Ticket generator with QR verification
+    └── README.md        # Evenza PHP documentation
 ```
 
 ---

@@ -743,6 +743,17 @@ function renderQuickEvents() {
     const container = document.getElementById('quickEventsList');
     if (!container) return;
 
+    if (events.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-4 text-muted">
+                <i class="bi bi-calendar-x fs-2 d-block mb-2 text-secondary"></i>
+                <h6 class="fw-bold text-dark mb-1">No Active Events</h6>
+                <p class="small text-muted mb-0">There are currently no events open for registration.</p>
+            </div>
+        `;
+        return;
+    }
+
     container.innerHTML = events.map(evt => {
         const isRegistered = student && regs.some(r => r.eventId == evt.id && ((r.usn && r.usn.toUpperCase() === student.usn.toUpperCase()) || (r.email && r.email.toLowerCase() === student.email.toLowerCase())));
 

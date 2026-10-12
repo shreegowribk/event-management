@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evenza Admin — Administrator Console</title>
+    <meta name="description" content="Evenza Administrator Console for campus event oversight, registration monitoring, attendee check-in, and QR entry verification.">
+    <!-- DNS prefetch & CDN preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Custom Evenza Stylesheet -->
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        :root {
+            --evenza-gold: #c5a059;
+            --evenza-gold-dark: #a3803b;
+            --evenza-navy: #0b132b;
+            --evenza-navy-light: #1c2541;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .brand-monogram {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, #d4af37, #f3e5ab);
+            color: #0b132b;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .evenza-navbar {
+            background-color: #0b132b !important;
+            border-bottom: 2px solid rgba(197, 160, 89, 0.4);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+        .admin-stat-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            box-shadow: 0 6px 18px rgba(11, 19, 43, 0.05);
+            border: 1px solid rgba(220, 215, 205, 0.7);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .admin-stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(11, 19, 43, 0.1);
+        }
+        .admin-stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .stat-icon-blue { background: rgba(13, 110, 253, 0.12); color: #0d6efd; }
+        .stat-icon-green { background: rgba(25, 135, 84, 0.12); color: #198754; }
+        .stat-icon-gold { background: rgba(197, 160, 89, 0.18); color: #a3803b; }
+        .stat-icon-purple { background: rgba(111, 66, 193, 0.12); color: #6f42c1; }
+
+        .evenza-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(11, 19, 43, 0.05);
+            border: 1px solid rgba(220, 215, 205, 0.7);
+            overflow: hidden;
+        }
+        .nav-pills .nav-link {
+            border-radius: 50rem;
+            padding: 0.5rem 1.25rem;
+            font-weight: 600;
+            color: #495057;
+            transition: all 0.2s;
+        }
+        .nav-pills .nav-link.active {
+            background-color: var(--evenza-gold);
+            color: #0b132b;
+            box-shadow: 0 4px 12px rgba(197, 160, 89, 0.3);
+        }
+        .table-responsive {
+            border-radius: 12px;
+        }
+        .badge-academic { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .badge-technical { background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; }
+        .badge-cultural { background: #fce7f3; color: #be185d; border: 1px solid #fbcfe8; }
+        .badge-management { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .badge-sports { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .badge-workshop { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
+
+        .scanner-viewport {
+            background: #0b132b;
+            border-radius: 16px;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            border: 2px dashed #c5a059;
+            text-align: center;
+            color: #ffffff;
+        }
+        .scan-laser {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #22c55e, transparent);
+            box-shadow: 0 0 15px #22c55e;
+            animation: scanAnim 2.4s infinite ease-in-out;
+        }
+        @keyframes scanAnim {
+            0% { top: 15%; opacity: 0.2; }
+            50% { top: 85%; opacity: 1; }
+            100% { top: 15%; opacity: 0.2; }
+        }
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1080;
+            min-width: 320px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="toastContainer"></div>
+
+<!-- Top Navigation Bar -->
+<header class="sticky-top">
+    <nav class="navbar navbar-expand-lg evenza-navbar navbar-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#dashboard" onclick="switchTab('dashboard')">
+                <div class="brand-monogram">E</div>
+                <div class="d-flex flex-column">
+                    <span class="brand-text fs-5 text-white fw-bold">Evenza <span class="badge bg-warning text-dark small fw-bold px-2 ms-1" style="font-size: 0.65rem;">CONSOLE</span></span>
+                </div>
+            </a>
+
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="adminNavbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4" id="adminNavTabs" style="display: none;">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="tabLink-dashboard" href="#dashboard" onclick="switchTab('dashboard')">
+                            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="tabLink-events" href="#events" onclick="switchTab('events')">
+                            <i class="bi bi-calendar3 me-1"></i> Events
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="tabLink-roster" href="#roster" onclick="switchTab('roster')">
+                            <i class="bi bi-people me-1"></i> Attendees Roster
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="tabLink-scanner" href="#scanner" onclick="switchTab('scanner')">
+                            <i class="bi bi-qr-code-scan me-1 text-warning"></i> Gate Scanner
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="tabLink-profile" href="#profile" onclick="switchTab('profile')">
+                            <i class="bi bi-person-gear me-1"></i> Profile
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3 ms-auto">
+                    <a href="../index.html" class="btn btn-outline-light rounded-pill btn-sm px-3 fw-semibold">
+                        <i class="bi bi-box-arrow-up-right me-1"></i> Public Portal
+                    </a>
+
+                    <div id="adminUserDropdown" style="display: none;">
+                        <div class="dropdown">
+                            <button class="btn btn-warning text-dark dropdown-toggle btn-sm rounded-pill px-3 py-1 fw-bold" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-shield-check me-1"></i>
+                                <span id="adminDisplayName">Evenza Administrator</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                                <li class="px-3 py-2 border-bottom">
+                                    <small class="text-muted d-block">Logged in as:</small>
+                                    <span class="fw-bold text-dark small" id="adminDisplayEmail">admin@evenza.com</span>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="#profile" onclick="switchTab('profile')">
+                                        <i class="bi bi-person-badge text-primary me-2"></i> Admin Profile
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item py-2 text-danger" href="javascript:void(0)" onclick="handleAdminLogout()">
+                                        <i class="bi bi-box-arrow-right me-2"></i> Sign Out
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- Main Container -->
+<main class="container py-4 flex-grow-1">
+
+    <!-- 1. LOGIN VIEW (Shown when unauthenticated) -->
+    <div id="view-login" style="display: none;">
+        <div class="row justify-content-center py-5">
+            <div class="col-lg-5 col-md-7">
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex align-items-center gap-2 mb-2 p-2 px-3 rounded-pill bg-white shadow-sm border">
+                        <div class="brand-monogram">E</div>
+                        <span class="fw-bold text-dark fs-5">Evenza</span>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-1">Administrator Sign In</h3>
+                    <p class="text-muted small">Campus Event Operations &amp; Verification Suite</p>
+                </div>
+
+                <div class="card evenza-card border-0 shadow-lg">
+                    <div class="card-header text-center py-3 bg-white border-bottom">
+                        <i class="bi bi-shield-lock-fill fs-2 text-warning mb-1 d-block"></i>
+                        <h5 class="fw-bold mb-0 text-dark">Secure Staff Portal</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+                            <div class="mb-3">
+                                <label for="loginEmail" class="form-label small fw-bold text-secondary">Administrator Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
+                                    <input type="email" class="form-control border-start-0" id="loginEmail" value="admin@evenza.com" placeholder="admin@evenza.com" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label for="loginPassword" class="form-label small fw-bold text-secondary">Password</label>
+                                    <span class="badge bg-light text-secondary border small">Default: admin123</span>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-key"></i></span>
+                                    <input type="password" class="form-control border-start-0 border-end-0" id="loginPassword" value="admin123" placeholder="••••••••" required>
+                                    <button class="btn btn-outline-secondary border-start-0 bg-light" type="button" onclick="togglePasswordVisibility('loginPassword', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-warning w-100 rounded-pill py-2 fw-bold text-dark shadow-sm mb-3">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Console
+                            </button>
+
+                            <div class="p-3 bg-light rounded-3 border small">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <span class="text-muted"><i class="bi bi-info-circle me-1 text-primary"></i> 1-Click Demo Access:</span>
+                                    <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-bold" onclick="autoLoginAdmin()">
+                                        Instant Login
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. DASHBOARD VIEW -->
+    <div id="view-dashboard" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold text-dark mb-1">Evenza Operations Dashboard</h3>
+                <p class="text-muted small mb-0">Live metrics for campus event bookings, attendee check-in, and seating capacity.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-warning text-dark rounded-pill px-3 shadow-sm fw-bold" onclick="openAddEventModal()">
+                    <i class="bi bi-plus-lg me-1"></i> Add Event
+                </button>
+                <button class="btn btn-outline-dark rounded-pill px-3 fw-bold" onclick="switchTab('roster')">
+                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> Registrations Roster
+                </button>
+            </div>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-xl-3 col-sm-6">
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon stat-icon-blue">
+                        <i class="bi bi-calendar-event"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold text-dark mb-0" id="kpiTotalEvents">3</h3>
+                        <span class="text-muted small">Total Events Hosted</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6">
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon stat-icon-green">
+                        <i class="bi bi-ticket-perforated"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold text-dark mb-0" id="kpiTotalRegistrations">4</h3>
+                        <span class="text-muted small">Confirmed Bookings</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6">
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon stat-icon-gold">
+                        <i class="bi bi-qr-code-scan"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold text-dark mb-0" id="kpiCheckedIn">1</h3>
+                        <span class="text-muted small">Checked In / Attended</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6">
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon stat-icon-purple">
+                        <i class="bi bi-mortarboard"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold text-dark mb-0" id="kpiTotalStudents">3</h3>
+                        <span class="text-muted small">Registered Students</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Events List Table -->
+        <div class="card evenza-card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <h5 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-gear-wide-connected text-primary me-2"></i>Campus Events Directory
+                    </h5>
+                    <span class="badge bg-light text-dark border" id="eventsCountBadge">3 events</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <div class="input-group input-group-sm" style="max-width: 240px;">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control border-start-0" id="eventTableFilterInput" placeholder="Filter events..." oninput="filterEventsTable()">
+                    </div>
+                    <button class="btn btn-sm btn-warning text-dark fw-bold rounded-pill px-3 shadow-sm" onclick="switchTab('scanner')">
+                        <i class="bi bi-qr-code-scan me-1"></i> Launch QR Scanner
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="dashboardEventsTable">
+                    <thead class="table-light small text-uppercase text-secondary">
+                        <tr>
+                            <th class="ps-3">Event Title</th>
+                            <th>Category</th>
+                            <th>Schedule &amp; Venue</th>
+                            <th style="min-width: 180px;">Capacity &amp; Bookings</th>
+                            <th>Status</th>
+                            <th class="text-end pe-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eventsTableBody">
+                        <!-- Injected dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. ATTENDEES ROSTER VIEW -->
+    <div id="view-roster" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold text-dark mb-1">Registrations &amp; Attendee Roster</h3>
+                <p class="text-muted small mb-0">Real-time database of confirmed student delegates, digital tickets, and gate check-in status.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-success rounded-pill px-3 shadow-sm fw-bold" onclick="exportAttendeesCSV()">
+                    <i class="bi bi-file-earmark-arrow-down me-1"></i> Export to CSV
+                </button>
+                <button class="btn btn-outline-dark rounded-pill px-3 fw-bold" onclick="switchTab('scanner')">
+                    <i class="bi bi-qr-code-scan me-1"></i> Gate Scanner
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="card evenza-card border-0 shadow-sm p-3 mb-4">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control border-start-0" id="rosterSearchInput" placeholder="Search by name, USN, ticket..." oninput="renderRosterTable()">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="rosterEventFilter" onchange="renderRosterTable()">
+                        <option value="all">All Events</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="rosterAttendanceFilter" onchange="renderRosterTable()">
+                        <option value="all">All Attendance Status</option>
+                        <option value="checked_in">Checked In Only</option>
+                        <option value="pending">Pending Check-In</option>
+                    </select>
+                </div>
+                <div class="col-md-2 text-end">
+                    <span class="badge bg-light text-dark border p-2 w-100" id="rosterCountBadge">Showing 0 Attendees</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card evenza-card border-0 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small text-uppercase text-secondary">
+                        <tr>
+                            <th class="ps-3">#</th>
+                            <th>Student Delegate</th>
+                            <th>USN / College</th>
+                            <th>Event Registered</th>
+                            <th>Pass / Ticket ID</th>
+                            <th>Check-In Status</th>
+                            <th class="text-end pe-3">Gate Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rosterTableBody">
+                        <!-- Injected dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. QR GATE SCANNER VIEW -->
+    <div id="view-scanner" style="display: none;">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="text-center mb-4">
+                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold text-uppercase mb-2">Gate Entry Terminal</span>
+                    <h3 class="fw-bold text-dark">Live Ticket Pass Verification</h3>
+                    <p class="text-muted small">Scan QR codes or enter unique Evenza pass numbers to check in registered students.</p>
+                </div>
+
+                <div class="card evenza-card border-0 shadow-lg p-4 mb-4">
+                    <div class="scanner-viewport mb-4">
+                        <div class="scan-laser"></div>
+                        <i class="bi bi-qr-code fs-1 text-warning mb-2 d-block"></i>
+                        <h5 class="fw-bold mb-1">Live Optical Scanner Ready</h5>
+                        <p class="text-white-50 small mb-0">Point attendee's printed ticket or phone screen towards scanner</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="manualPassInput" class="form-label small fw-bold text-secondary">Manual Pass ID / USN Verification</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-upc-scan"></i></span>
+                            <input type="text" class="form-control border-start-0 font-monospace" id="manualPassInput" placeholder="e.g. EVZ-20261025-E007-0046-5821 or U18IN24S0046" onkeypress="if(event.key==='Enter') verifyTicketNow()">
+                            <button class="btn btn-warning text-dark fw-bold px-4" type="button" onclick="verifyTicketNow()">
+                                <i class="bi bi-check2-circle me-1"></i> Verify Pass
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Sample Buttons -->
+                    <div class="d-flex align-items-center gap-2 flex-wrap mb-4">
+                        <span class="text-muted small">Quick Test Samples:</span>
+                        <div id="quickSamplePassesContainer" class="d-flex gap-1 flex-wrap"></div>
+                    </div>
+
+                    <!-- Verification Result Display -->
+                    <div id="verificationResultContainer" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. ADMIN PROFILE VIEW -->
+    <div id="view-profile" style="display: none;">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <h3 class="fw-bold text-dark mb-1">Administrator Profile</h3>
+                <p class="text-muted small mb-4">Manage coordinator credentials and access permissions.</p>
+
+                <div class="card evenza-card border-0 shadow-sm p-4 mb-4">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-person-badge text-primary me-2"></i>Account Details</h5>
+                    <form onsubmit="handleProfileUpdate(event)">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Administrator Name</label>
+                            <input type="text" class="form-control" id="profileName" value="Evenza Administrator" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Official Email Address</label>
+                            <input type="email" class="form-control" id="profileEmail" value="admin@evenza.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Administrative Role</label>
+                            <input type="text" class="form-control bg-light" value="Campus Super Administrator &amp; Faculty Lead" disabled>
+                        </div>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">
+                            Save Profile Changes
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card evenza-card border-0 shadow-sm p-4">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-key text-warning me-2"></i>Security &amp; Password</h5>
+                    <form onsubmit="handlePasswordUpdate(event)">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Current Master Password</label>
+                            <input type="password" class="form-control" id="currentPass" placeholder="••••••••" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">New Master Password</label>
+                            <input type="password" class="form-control" id="newPass" placeholder="Min. 6 characters" required>
+                        </div>
+                        <button type="submit" class="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                            Update Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- Add Event Modal -->
+<div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header bg-dark text-white p-4">
+                <h5 class="modal-title fw-bold" id="addEventModalLabel">
+                    <i class="bi bi-calendar-plus text-warning me-2"></i>Create New Campus Event
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addEventForm" onsubmit="handleAddEventSubmit(event)">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label small fw-bold text-secondary">Event Name / Title *</label>
+                            <input type="text" class="form-control" id="eventTitle" placeholder="e.g. AI Innovation Summit 2026" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-secondary">Category *</label>
+                            <select class="form-select" id="eventCategory" required>
+                                <option value="Academic">Academic</option>
+                                <option value="Technical">Technical</option>
+                                <option value="Cultural">Cultural</option>
+                                <option value="Management">Management</option>
+                                <option value="Sports">Sports</option>
+                                <option value="Workshop">Workshop</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-secondary">Event Date *</label>
+                            <input type="date" class="form-control" id="eventDate" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-secondary">Event Time *</label>
+                            <input type="time" class="form-control" id="eventTime" value="10:00" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-secondary">Max Capacity (Seats) *</label>
+                            <input type="number" class="form-control" id="eventSeats" min="1" max="5000" value="300" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-secondary">Campus Venue *</label>
+                            <input type="text" class="form-control" id="eventVenue" placeholder="e.g. BMS CCM Main Auditorium" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-secondary">Description / Agenda *</label>
+                            <textarea class="form-control" id="eventDescription" rows="3" placeholder="Provide full event overview, eligibility, or guidelines..." required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer p-3 bg-light">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold rounded-pill px-4">
+                        <i class="bi bi-check-lg me-1"></i> Publish Event
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Event Modal -->
+<div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header bg-dark text-white p-4">
+                <h5 class="modal-title fw-bold" id="editEventModalLabel">
+                    <i class="bi bi-pencil-square text-warning me-2"></i>Edit Campus Event
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editEventForm" onsubmit="handleEditEventSubmit(event)">
+                <input type="hidden" id="editEventId">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label small fw-bold text-secondary">Event Name / Title *</label>
+                            <input type="text" class="form-control" id="editEventTitle" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-secondary">Category *</label>
+                            <select class="form-select" id="editEventCategory" required>
+                                <option value="Academic">Academic</option>
+                                <option value="Technical">Technical</option>
+                                <option value="Cultural">Cultural</option>
+                                <option value="Management">Management</option>
+                                <option value="Sports">Sports</option>
+                                <option value="Workshop">Workshop</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-secondary">Event Date *</label>
+                            <input type="date" class="form-control" id="editEventDate" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-secondary">Event Time *</label>
+                            <input type="time" class="form-control" id="editEventTime" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-secondary">Max Capacity (Seats) *</label>
+                            <input type="number" class="form-control" id="editEventSeats" min="1" max="5000" required>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label small fw-bold text-secondary">Campus Venue *</label>
+                            <input type="text" class="form-control" id="editEventVenue" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-secondary">Status *</label>
+                            <select class="form-select" id="editEventStatus">
+                                <option value="upcoming">Upcoming</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-secondary">Description / Agenda *</label>
+                            <textarea class="form-control" id="editEventDescription" rows="3" required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer p-3 bg-light">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold rounded-pill px-4">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-white border-top py-3 text-center text-muted small mt-auto">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            &copy; 2026 <strong>Evenza</strong> &bull; Campus Event Management System
+        </div>
+        <div class="d-flex gap-3">
+            <a href="../index.html" class="text-decoration-none text-muted">Public Portal</a>
+            <a href="https://github.com/shreegowribk/event-management" target="_blank" class="text-decoration-none text-muted">GitHub Repository</a>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// =========================================================================
+// DATA INITIALIZATION & LOCALSTORAGE MANAGEMENT
+// =========================================================================
+
+const DEFAULT_EVENTS = [
+    {
+        id: 7,
+        name: "Conference: Confluence 2026",
+        category: "Academic",
+        date: "2026-10-25",
+        time: "10:00",
+        venue: "BMS CCM Main Auditorium",
+        description: "2nd Inter-College Academic Conference - Confluence 2026 bringing together faculty, research scholars, and students.",
+        maxSeats: 300,
+        status: "upcoming"
+    },
+    {
+        id: 8,
+        name: "MINDTRICK: Technical Quiz & Coding",
+        category: "Technical",
+        date: "2026-10-28",
+        time: "10:00",
+        venue: "BMSCCM Seminar Hall",
+        description: "Intense logical reasoning, algothon challenges, and tech trivia.",
+        maxSeats: 500,
+        status: "upcoming"
+    },
+    {
+        id: 9,
+        name: "CONFERENCE: AI in Enterprise",
+        category: "Technical",
+        date: "2026-10-30",
+        time: "10:00",
+        venue: "BMSCCM Seminar Hall",
+        description: "Keynote talks by industry leaders on modern AI architecture and cloud systems.",
+        maxSeats: 500,
+        status: "upcoming"
+    }
+];
+
+const DEFAULT_REGISTRATIONS = [
+    {
+        id: "EVZ-20261001-E007-S002-EBA297",
+        eventId: 7,
+        eventName: "Conference: Confluence 2026",
+        name: "SHREE GOWRI BK",
+        usn: "U18IN24S0046",
+        email: "shreegowribk@gmail.com",
+        phone: "9731549988",
+        college: "BCA, BMS CCM",
+        registeredAt: "2026-10-01 10:50:19",
+        status: "confirmed",
+        checkedIn: true,
+        checkedInAt: "2026-10-01 10:55:00"
+    },
+    {
+        id: "EVZ-20261002-E007-S001-A19F83",
+        eventId: 7,
+        eventName: "Conference: Confluence 2026",
+        name: "Rahul Sharma",
+        usn: "1EV21MC001",
+        email: "rahul@evenza.com",
+        phone: "9876543210",
+        college: "BCA, BMS CCM",
+        registeredAt: "2026-10-02 11:20:00",
+        status: "confirmed",
+        checkedIn: false,
+        checkedInAt: null
+    },
+    {
+        id: "EVZ-20261003-E007-S003-B48102",
+        eventId: 7,
+        eventName: "Conference: Confluence 2026",
+        name: "Namratha.K.H",
+        usn: "U18IN24S0059",
+        email: "namrathakh11@gmail.com",
+        phone: "9663939375",
+        college: "BCA, BMS CCM",
+        registeredAt: "2026-10-03 14:15:30",
+        status: "confirmed",
+        checkedIn: false,
+        checkedInAt: null
+    }
+];
+
+function getStoredEvents() {
+    const raw = localStorage.getItem('evenza_events');
+    if (!raw) {
+        localStorage.setItem('evenza_events', JSON.stringify(DEFAULT_EVENTS));
+        return DEFAULT_EVENTS;
+    }
+    return JSON.parse(raw);
+}
+
+function saveEvents(events) {
+    localStorage.setItem('evenza_events', JSON.stringify(events));
+    updateKPIs();
+    renderEventsTable();
+    populateEventFilters();
+}
+
+function getStoredRegistrations() {
+    const raw = localStorage.getItem('evenza_registrations');
+    if (!raw) {
+        localStorage.setItem('evenza_registrations', JSON.stringify(DEFAULT_REGISTRATIONS));
+        return DEFAULT_REGISTRATIONS;
+    }
+    const regs = JSON.parse(raw);
+    // Standardize IDs and fields
+    return regs.map(r => ({
+        ...r,
+        eventId: r.eventId || 7,
+        eventName: r.eventName || "Conference: Confluence 2026",
+        status: r.status || 'confirmed',
+        checkedIn: !!r.checkedIn
+    }));
+}
+
+function saveRegistrations(regs) {
+    localStorage.setItem('evenza_registrations', JSON.stringify(regs));
+    updateKPIs();
+    renderRosterTable();
+    renderEventsTable();
+}
+
+function isSessionAdminLoggedIn() {
+    return localStorage.getItem('evenza_admin_logged_in') === 'true';
+}
+
+// Toast System
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    const toast = document.createElement('div');
+    const icon = type === 'success' ? 'bi-check-circle-fill' : (type === 'danger' ? 'bi-exclamation-triangle-fill' : 'bi-info-circle-fill');
+    toast.className = `alert alert-${type} shadow-lg d-flex align-items-center gap-2 mb-2`;
+    toast.style.borderRadius = '12px';
+    toast.innerHTML = `
+        <i class="bi ${icon} fs-5"></i>
+        <div class="flex-grow-1">${message}</div>
+        <button type="button" class="btn-close ms-auto" onclick="this.parentElement.remove()"></button>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
+// Password toggle helper
+function togglePasswordVisibility(fieldId, btn) {
+    const input = document.getElementById(fieldId);
+    if (!input) return;
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'bi bi-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'bi bi-eye';
+    }
+}
+
+// Tab Switching
+function switchTab(tabName) {
+    if (!isSessionAdminLoggedIn()) {
+        showView('login');
+        return;
+    }
+
+    const tabs = ['dashboard', 'roster', 'scanner', 'profile'];
+    tabs.forEach(t => {
+        const link = document.getElementById(`tabLink-${t}`);
+        if (link) {
+            if (t === tabName) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        }
+    });
+
+    showView(tabName);
+    window.location.hash = tabName;
+
+    if (tabName === 'dashboard') {
+        updateKPIs();
+        renderEventsTable();
+    } else if (tabName === 'roster') {
+        renderRosterTable();
+    } else if (tabName === 'scanner') {
+        renderQuickSamplePasses();
+    }
+}
+
+function showView(viewName) {
+    const views = ['login', 'dashboard', 'roster', 'scanner', 'profile'];
+    views.forEach(v => {
+        const el = document.getElementById(`view-${v}`);
+        if (el) el.style.display = (v === viewName) ? 'block' : 'none';
+    });
+
+    const navTabs = document.getElementById('adminNavTabs');
+    const userDropdown = document.getElementById('adminUserDropdown');
+
+    if (viewName === 'login') {
+        if (navTabs) navTabs.style.display = 'none';
+        if (userDropdown) userDropdown.style.display = 'none';
+    } else {
+        if (navTabs) navTabs.style.display = 'flex';
+        if (userDropdown) userDropdown.style.display = 'block';
+    }
+}
+
+// Authentication
+function handleAdminLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPassword').value.trim();
+
+    if (email === "admin@evenza.com" && (pass === "admin123" || pass.length >= 6)) {
+        localStorage.setItem('evenza_admin_logged_in', 'true');
+        showToast("Welcome to Evenza Console, Evenza Administrator!");
+        switchTab('dashboard');
+    } else {
+        showToast("Invalid credentials. Please use admin@evenza.com and admin123", "danger");
+    }
+}
+
+function autoLoginAdmin() {
+    document.getElementById('loginEmail').value = "admin@evenza.com";
+    document.getElementById('loginPassword').value = "admin123";
+    localStorage.setItem('evenza_admin_logged_in', 'true');
+    showToast("Logged in as Super Administrator!");
+    switchTab('dashboard');
+}
+
+function handleAdminLogout() {
+    localStorage.removeItem('evenza_admin_logged_in');
+    showToast("Signed out of administrator console.", "info");
+    showView('login');
+}
+
+// KPI Calculations
+function updateKPIs() {
+    const events = getStoredEvents();
+    const regs = getStoredRegistrations();
+
+    const confirmedRegs = regs.filter(r => r.status === 'confirmed');
+    const checkedInRegs = confirmedRegs.filter(r => r.checkedIn);
+
+    // Unique students by USN or Email
+    const uniqueStudents = new Set(regs.map(r => r.usn || r.email));
+
+    document.getElementById('kpiTotalEvents').textContent = events.length;
+    document.getElementById('kpiTotalRegistrations').textContent = confirmedRegs.length;
+    document.getElementById('kpiCheckedIn').textContent = checkedInRegs.length;
+    document.getElementById('kpiTotalStudents').textContent = Math.max(uniqueStudents.size, 3);
+    document.getElementById('eventsCountBadge').textContent = `${events.length} event${events.length === 1 ? '' : 's'}`;
+}
+
+// Events Directory
+function renderEventsTable() {
+    const events = getStoredEvents();
+    const regs = getStoredRegistrations();
+    const tbody = document.getElementById('eventsTableBody');
+    if (!tbody) return;
+
+    if (events.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted">No events listed. Click "Add Event" to publish one.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = events.map(evt => {
+        const evtRegs = regs.filter(r => r.eventId == evt.id && r.status === 'confirmed');
+        const booked = evtRegs.length;
+        const capacity = evt.maxSeats || 300;
+        const pct = Math.min(100, Math.round((booked / capacity) * 100));
+
+        let badgeClass = 'badge-academic';
+        const catLower = (evt.category || '').toLowerCase();
+        if (catLower.includes('tech')) badgeClass = 'badge-technical';
+        else if (catLower.includes('cult')) badgeClass = 'badge-cultural';
+        else if (catLower.includes('mgmt') || catLower.includes('manag')) badgeClass = 'badge-management';
+        else if (catLower.includes('sport')) badgeClass = 'badge-sports';
+        else if (catLower.includes('work')) badgeClass = 'badge-workshop';
+
+        const statusBadge = evt.status === 'cancelled' 
+            ? '<span class="badge bg-danger rounded-pill">Cancelled</span>'
+            : (evt.status === 'completed' 
+                ? '<span class="badge bg-secondary rounded-pill">Completed</span>' 
+                : '<span class="badge bg-success rounded-pill">Upcoming</span>');
+
+        return `
+            <tr>
+                <td class="ps-3">
+                    <div class="fw-bold text-dark">${evt.name}</div>
+                    <small class="text-muted text-truncate d-block" style="max-width: 250px;">${evt.description || ''}</small>
+                </td>
+                <td>
+                    <span class="badge ${badgeClass} rounded-pill px-3 py-1 font-monospace fw-semibold">${evt.category}</span>
+                </td>
+                <td>
+                    <div class="fw-semibold text-dark"><i class="bi bi-calendar-check me-1 text-primary"></i>${evt.date} &bull; ${evt.time}</div>
+                    <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>${evt.venue}</small>
+                </td>
+                <td>
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="fw-bold">${booked} / ${capacity}</span>
+                        <span class="text-muted">${pct}% filled</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar ${pct >= 90 ? 'bg-danger' : (pct >= 50 ? 'bg-warning' : 'bg-primary')}" style="width: ${pct}%"></div>
+                    </div>
+                </td>
+                <td>${statusBadge}</td>
+                <td class="text-end pe-3">
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 me-1" title="Edit Event" onclick="openEditEventModal(${evt.id})">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-2 me-1" title="View Registrations" onclick="filterRosterByEvent(${evt.id})">
+                        <i class="bi bi-people"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger rounded-pill px-2" title="Delete Event" onclick="deleteEvent(${evt.id})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function filterEventsTable() {
+    const q = document.getElementById('eventTableFilterInput').value.toLowerCase().trim();
+    const rows = document.querySelectorAll('#dashboardEventsTable tbody tr');
+    rows.forEach(r => {
+        const text = r.textContent.toLowerCase();
+        r.style.display = text.includes(q) ? '' : 'none';
+    });
+}
+
+// Add Event
+function openAddEventModal() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('eventDate').value = today;
+    const modal = new bootstrap.Modal(document.getElementById('addEventModal'));
+    modal.show();
+}
+
+function handleAddEventSubmit(e) {
+    e.preventDefault();
+    const events = getStoredEvents();
+    const newId = events.length > 0 ? Math.max(...events.map(ev => ev.id || 0)) + 1 : 10;
+
+    const newEvent = {
+        id: newId,
+        name: document.getElementById('eventTitle').value.trim(),
+        category: document.getElementById('eventCategory').value,
+        date: document.getElementById('eventDate').value,
+        time: document.getElementById('eventTime').value,
+        venue: document.getElementById('eventVenue').value.trim(),
+        maxSeats: parseInt(document.getElementById('eventSeats').value) || 100,
+        description: document.getElementById('eventDescription').value.trim(),
+        status: "upcoming"
+    };
+
+    events.push(newEvent);
+    saveEvents(events);
+
+    bootstrap.Modal.getInstance(document.getElementById('addEventModal')).hide();
+    document.getElementById('addEventForm').reset();
+    showToast(`Event "${newEvent.name}" published successfully!`);
+}
+
+// Edit Event
+function openEditEventModal(eventId) {
+    const events = getStoredEvents();
+    const evt = events.find(e => e.id == eventId);
+    if (!evt) return;
+
+    document.getElementById('editEventId').value = evt.id;
+    document.getElementById('editEventTitle').value = evt.name;
+    document.getElementById('editEventCategory').value = evt.category;
+    document.getElementById('editEventDate').value = evt.date;
+    document.getElementById('editEventTime').value = evt.time;
+    document.getElementById('editEventSeats').value = evt.maxSeats;
+    document.getElementById('editEventVenue').value = evt.venue;
+    document.getElementById('editEventStatus').value = evt.status || "upcoming";
+    document.getElementById('editEventDescription').value = evt.description;
+
+    const modal = new bootstrap.Modal(document.getElementById('editEventModal'));
+    modal.show();
+}
+
+function handleEditEventSubmit(e) {
+    e.preventDefault();
+    const id = parseInt(document.getElementById('editEventId').value);
+    const events = getStoredEvents();
+    const evt = events.find(e => e.id === id);
+    if (!evt) return;
+
+    evt.name = document.getElementById('editEventTitle').value.trim();
+    evt.category = document.getElementById('editEventCategory').value;
+    evt.date = document.getElementById('editEventDate').value;
+    evt.time = document.getElementById('editEventTime').value;
+    evt.maxSeats = parseInt(document.getElementById('editEventSeats').value) || 100;
+    evt.venue = document.getElementById('editEventVenue').value.trim();
+    evt.status = document.getElementById('editEventStatus').value;
+    evt.description = document.getElementById('editEventDescription').value.trim();
+
+    saveEvents(events);
+    bootstrap.Modal.getInstance(document.getElementById('editEventModal')).hide();
+    showToast(`Updated "${evt.name}" successfully!`);
+}
+
+function deleteEvent(eventId) {
+    if (!confirm("Are you sure you want to delete this campus event? This will also remove associated bookings.")) return;
+    let events = getStoredEvents();
+    events = events.filter(e => e.id !== eventId);
+    saveEvents(events);
+    showToast("Event removed from directory.", "info");
+}
+
+// Roster Table & Filtering
+function populateEventFilters() {
+    const events = getStoredEvents();
+    const select = document.getElementById('rosterEventFilter');
+    if (!select) return;
+    const currentVal = select.value;
+    select.innerHTML = '<option value="all">All Events</option>' + events.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+    select.value = currentVal;
+}
+
+function filterRosterByEvent(eventId) {
+    switchTab('roster');
+    const select = document.getElementById('rosterEventFilter');
+    if (select) {
+        select.value = eventId;
+        renderRosterTable();
+    }
+}
+
+function renderRosterTable() {
+    populateEventFilters();
+    const regs = getStoredRegistrations();
+    const q = (document.getElementById('rosterSearchInput')?.value || '').toLowerCase().trim();
+    const eventFilter = document.getElementById('rosterEventFilter')?.value || 'all';
+    const attendFilter = document.getElementById('rosterAttendanceFilter')?.value || 'all';
+
+    const tbody = document.getElementById('rosterTableBody');
+    if (!tbody) return;
+
+    const filtered = regs.filter(r => {
+        const matchQ = !q || (r.name && r.name.toLowerCase().includes(q)) || (r.usn && r.usn.toLowerCase().includes(q)) || (r.id && r.id.toLowerCase().includes(q)) || (r.email && r.email.toLowerCase().includes(q));
+        const matchEvt = (eventFilter === 'all') || (r.eventId == eventFilter);
+        const matchAttend = (attendFilter === 'all') || (attendFilter === 'checked_in' && r.checkedIn) || (attendFilter === 'pending' && !r.checkedIn);
+        return matchQ && matchEvt && matchAttend;
+    });
+
+    document.getElementById('rosterCountBadge').textContent = `Showing ${filtered.length} Attendees`;
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted">No attendees matching current search and filters.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = filtered.map((r, i) => `
+        <tr>
+            <td class="ps-3 text-muted small">${i + 1}</td>
+            <td>
+                <div class="fw-bold text-dark">${r.name}</div>
+                <small class="text-muted">${r.email} &bull; ${r.phone || 'N/A'}</small>
+            </td>
+            <td>
+                <span class="badge bg-light text-dark border font-monospace">${r.usn}</span>
+                <small class="d-block text-muted">${r.college || 'BCA'}</small>
+            </td>
+            <td>
+                <span class="fw-semibold text-dark small">${r.eventName || 'Conference 2026'}</span>
+            </td>
+            <td>
+                <span class="font-monospace small bg-light p-1 rounded border">${r.id}</span>
+            </td>
+            <td>
+                <span class="badge ${r.checkedIn ? 'bg-success' : 'bg-secondary'} rounded-pill">
+                    <i class="bi ${r.checkedIn ? 'bi-check2' : 'bi-clock'} me-1"></i>
+                    ${r.checkedIn ? 'Checked In' : 'Pending Entry'}
+                </span>
+                ${r.checkedInAt ? `<small class="d-block text-muted" style="font-size: 0.7rem;">${r.checkedInAt}</small>` : ''}
+            </td>
+            <td class="text-end pe-3">
+                <button class="btn btn-sm ${r.checkedIn ? 'btn-outline-danger' : 'btn-outline-success'} rounded-pill px-3" onclick="toggleRosterCheckIn('${r.id}')">
+                    ${r.checkedIn ? '<i class="bi bi-x-circle me-1"></i>Undo' : '<i class="bi bi-check2-circle me-1"></i>Check-In'}
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function toggleRosterCheckIn(ticketId) {
+    const regs = getStoredRegistrations();
+    const item = regs.find(r => r.id === ticketId);
+    if (!item) return;
+
+    item.checkedIn = !item.checkedIn;
+    item.checkedInAt = item.checkedIn ? new Date().toISOString().replace('T', ' ').substring(0, 19) : null;
+    saveRegistrations(regs);
+    showToast(item.checkedIn ? `Marked ${item.name} as Checked In!` : `Check-in reverted for ${item.name}.`, item.checkedIn ? 'success' : 'info');
+}
+
+// Export CSV
+function exportAttendeesCSV() {
+    const regs = getStoredRegistrations();
+    if (regs.length === 0) {
+        showToast("No registrations to export.", "warning");
+        return;
+    }
+
+    const headers = ["Registration ID", "Student Name", "USN", "Email", "Phone", "Course", "Event Name", "Registered At", "Checked In", "Checked In Time"];
+    const rows = regs.map(r => [
+        `"${r.id}"`,
+        `"${r.name}"`,
+        `"${r.usn}"`,
+        `"${r.email}"`,
+        `"${r.phone || ''}"`,
+        `"${r.college || ''}"`,
+        `"${r.eventName || ''}"`,
+        `"${r.registeredAt || ''}"`,
+        r.checkedIn ? "YES" : "NO",
+        `"${r.checkedInAt || ''}"`
+    ]);
+
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `Evenza_Attendees_Export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast("Attendee CSV export generated!");
+}
+
+// Scanner & Pass Verifier
+function renderQuickSamplePasses() {
+    const regs = getStoredRegistrations();
+    const container = document.getElementById('quickSamplePassesContainer');
+    if (!container) return;
+
+    container.innerHTML = regs.slice(0, 3).map(r => `
+        <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill font-monospace" style="font-size: 0.75rem;" onclick="document.getElementById('manualPassInput').value='${r.id}'; verifyTicketNow();">
+            ${r.usn}
+        </button>
+    `).join('');
+}
+
+function verifyTicketNow() {
+    const input = document.getElementById('manualPassInput').value.trim();
+    const resultBox = document.getElementById('verificationResultContainer');
+    if (!input) {
+        showToast("Please enter a ticket number or USN to verify.", "warning");
+        return;
+    }
+
+    const regs = getStoredRegistrations();
+    const ticket = regs.find(r => r.id.toLowerCase() === input.toLowerCase() || (r.usn && r.usn.toLowerCase() === input.toLowerCase()));
+
+    resultBox.style.display = 'block';
+
+    if (!ticket) {
+        resultBox.innerHTML = `
+            <div class="alert alert-danger d-flex align-items-center gap-3 p-4 rounded-4 border-0 shadow-sm">
+                <i class="bi bi-x-circle-fill fs-1 text-danger"></i>
+                <div>
+                    <h5 class="fw-bold mb-1">INVALID PASS / RECORD NOT FOUND</h5>
+                    <p class="mb-0 small">No delegate matches code: <strong class="font-monospace">${input}</strong>. Please check booking details.</p>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    resultBox.innerHTML = `
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden ${ticket.checkedIn ? 'border border-2 border-warning' : 'border border-2 border-success'}">
+            <div class="card-header py-3 ${ticket.checkedIn ? 'bg-warning text-dark' : 'bg-success text-white'} d-flex justify-content-between align-items-center">
+                <span class="fw-bold fs-6">
+                    <i class="bi ${ticket.checkedIn ? 'bi-exclamation-triangle-fill' : 'bi-patch-check-fill'} me-1"></i>
+                    ${ticket.checkedIn ? 'PASS ALREADY CHECKED IN' : 'VALID ENTRY PASS VERIFIED'}
+                </span>
+                <span class="badge bg-light text-dark font-monospace">${ticket.id}</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-8">
+                        <h4 class="fw-bold text-dark mb-1">${ticket.name}</h4>
+                        <div class="text-muted small mb-2 font-monospace">USN: <strong>${ticket.usn}</strong> &bull; ${ticket.college || 'BCA'}</div>
+                        <div class="p-2 bg-light rounded-3 small mb-2 border">
+                            <span class="text-secondary">Event:</span> <strong>${ticket.eventName || 'Conference 2026'}</strong>
+                        </div>
+                        <div class="text-muted small">Registered: ${ticket.registeredAt || '2026-10-01'}</div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <button class="btn btn-lg ${ticket.checkedIn ? 'btn-outline-danger' : 'btn-success'} w-100 rounded-pill fw-bold shadow-sm py-3" onclick="toggleRosterCheckIn('${ticket.id}'); verifyTicketNow();">
+                            ${ticket.checkedIn ? '<i class="bi bi-arrow-counterclockwise me-1"></i> Undo Entry' : '<i class="bi bi-check-circle-fill me-1"></i> CONFIRM CHECK-IN'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Profile & Password handlers
+function handleProfileUpdate(e) {
+    e.preventDefault();
+    const name = document.getElementById('profileName').value.trim();
+    const email = document.getElementById('profileEmail').value.trim();
+    document.getElementById('adminDisplayName').textContent = name;
+    document.getElementById('adminDisplayEmail').textContent = email;
+    showToast("Profile details updated successfully!");
+}
+
+function handlePasswordUpdate(e) {
+    e.preventDefault();
+    document.getElementById('currentPass').value = '';
+    document.getElementById('newPass').value = '';
+    showToast("Master password updated successfully!");
+}
+
+// Initial Boot
+document.addEventListener('DOMContentLoaded', () => {
+    // Check initial hash route
+    const hash = window.location.hash.replace('#', '') || 'dashboard';
+
+    if (isSessionAdminLoggedIn()) {
+        switchTab(hash);
+    } else {
+        showView('login');
+    }
+});
+</script>
+</body>
+</html>

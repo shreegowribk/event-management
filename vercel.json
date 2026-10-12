@@ -3,6 +3,26 @@
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/admin",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/evenza/admin",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/evenza/admin/:path*",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/evenza/:path*",
+      "destination": "/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

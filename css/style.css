@@ -1,0 +1,1124 @@
+/* ==========================================================
+   Evenza — College Event Management Portal
+   Theme: Luxury & Light
+   Prestige, Warm Alabaster, Pearl Ivory & Champagne Gold
+   ========================================================== */
+
+:root {
+  /* Core Luxury Light Palette: Warm Alabaster, Pearl Ivory, and Pure White */
+  --evenza-bg: #faf8f5;            /* Soft pearl alabaster ground */
+  --evenza-surface: #ffffff;       /* Pure crisp white card surface */
+  --evenza-surface-soft: #f6f2ea;  /* Warm champagne tint */
+  --evenza-surface-elevated: #fcfbf9;
+  
+  /* Champagne & Burnished Gold Accents */
+  --evenza-gold: #c5a059;          /* Radiant Champagne Gold */
+  --evenza-gold-light: #dfc187;    /* Luminous Warm Gold */
+  --evenza-gold-dark: #9e7b34;     /* Burnished Antique Gold */
+  --evenza-gold-deep: #7a5e24;     /* Deep Bronze Gold */
+  --evenza-gold-subtle: rgba(197, 160, 89, 0.12);
+  --evenza-gold-border: rgba(197, 160, 89, 0.28);
+  --evenza-gold-glow: 0 4px 18px rgba(197, 160, 89, 0.22);
+
+  /* Refined Luxury Typography */
+  --evenza-text-title: #1a1714;    /* Deep Warm Obsidian */
+  --evenza-text-main: #332f2b;     /* Refined Espresso Charcoal */
+  --evenza-text-muted: #6b6359;    /* Warm Slate Truffle */
+  --evenza-text-dim: #948c80;      /* Cashmere Sand */
+
+  /* Hairlines & Dividers */
+  --evenza-border-light: #ece6dc;  /* Whisper-thin sand hairline */
+  --evenza-border-gold: rgba(197, 160, 89, 0.32);
+
+  /* Status Colors in Luxury Muted Jewel Tones */
+  --evenza-emerald: #1b6647;       /* Imperial Emerald */
+  --evenza-emerald-bg: #edf7f2;
+  --evenza-crimson: #942b36;       /* Royal Crimson */
+  --evenza-crimson-bg: #faebed;
+  --evenza-sapphire: #1e457a;      /* Deep Sapphire */
+  --evenza-sapphire-bg: #eef4fb;
+  --evenza-amber: #b45309;
+  --evenza-amber-bg: #fef3c7;
+  
+  /* Geometry & Shadows */
+  --evenza-radius-sm: 8px;
+  --evenza-radius-md: 14px;
+  --evenza-radius-lg: 20px;
+
+  --evenza-shadow-subtle: 0 2px 10px rgba(50, 38, 22, 0.04);
+  --evenza-shadow-card: 0 10px 30px -4px rgba(60, 45, 25, 0.06), 0 2px 8px -2px rgba(60, 45, 25, 0.02);
+  --evenza-shadow-hover: 0 18px 42px -6px rgba(160, 125, 55, 0.16), 0 4px 14px -2px rgba(60, 45, 25, 0.04);
+}
+
+/* ----------------------------------------------------------
+   Global Layout & Typography
+   ---------------------------------------------------------- */
+body, body.bg-light {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--evenza-bg) !important;
+  color: var(--evenza-text-main) !important;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  background-image: 
+    radial-gradient(circle at 100% 0%, rgba(212, 175, 55, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 0% 100%, rgba(197, 160, 89, 0.05) 0%, transparent 40%);
+  background-attachment: fixed;
+}
+
+h1, h2, h3, h4, h5, h6, .brand-font {
+  font-family: 'Space Grotesk', -apple-system, sans-serif;
+  letter-spacing: -0.02em;
+  color: var(--evenza-text-title);
+}
+
+.mono-font {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+a {
+  color: var(--evenza-gold-dark);
+  transition: all 0.2s ease;
+}
+
+a:hover {
+  color: var(--evenza-gold-deep);
+}
+
+/* ----------------------------------------------------------
+   Top Institutional Notice Strip (Quiet Luxury Ivory Bar)
+   ---------------------------------------------------------- */
+.top-institutional-strip {
+  background: #f7f4ee;
+  color: #787065;
+  font-size: 0.78rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid rgba(197, 160, 89, 0.25);
+  letter-spacing: 0.2px;
+}
+
+.top-institutional-strip .text-light {
+  color: #2e2a25 !important;
+}
+
+.top-institutional-strip .text-white-50 {
+  color: #8c8376 !important;
+}
+
+.top-institutional-strip a {
+  color: #787065;
+  font-weight: 500;
+}
+
+.top-institutional-strip a:hover {
+  color: var(--evenza-gold-dark);
+}
+
+/* ----------------------------------------------------------
+   Navigation Bar (Frosted Pearl White with Champagne Border)
+   ---------------------------------------------------------- */
+.evenza-navbar {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(197, 160, 89, 0.35) !important;
+  padding: 0.85rem 0;
+  box-shadow: 0 4px 24px rgba(180, 140, 70, 0.06);
+}
+
+.brand-monogram {
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, #dfba6d 0%, #a8843c 100%) !important;
+  color: #ffffff !important;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.2rem;
+  box-shadow: 0 3px 12px rgba(179, 139, 67, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.brand-monogram:hover {
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 6px 18px rgba(179, 139, 67, 0.45);
+}
+
+.brand-text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1a1714 !important;
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+.brand-subtext {
+  font-size: 0.72rem;
+  color: var(--evenza-gold-dark) !important;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.nav-link {
+  color: #4a433a !important;
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.9rem !important;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+}
+
+.nav-link:hover {
+  color: var(--evenza-gold-dark) !important;
+  background-color: rgba(197, 160, 89, 0.08);
+}
+
+.nav-link.active {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #c5a059 0%, #a37f37 100%) !important;
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(179, 139, 67, 0.28);
+}
+
+.navbar-toggler {
+  border: 1px solid rgba(197, 160, 89, 0.35) !important;
+  background-color: #faf7f0;
+}
+
+.navbar-toggler-icon {
+  filter: invert(0.2);
+}
+
+/* ----------------------------------------------------------
+   Hero Section (Luminous Warm Champagne & Editorial Elegance)
+   ---------------------------------------------------------- */
+.evenza-hero {
+  background: linear-gradient(180deg, #fbf9f5 0%, #f4ede1 100%);
+  background-image: 
+    radial-gradient(circle at 85% 25%, rgba(212, 175, 55, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 10% 85%, rgba(197, 160, 89, 0.08) 0%, transparent 50%),
+    linear-gradient(180deg, #faf7f1 0%, #f3ece0 100%);
+  border-bottom: 1px solid rgba(197, 160, 89, 0.25);
+  padding: 4rem 0 3.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.evenza-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-size: 36px 36px;
+  background-image: 
+    linear-gradient(to right, rgba(197, 160, 89, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(197, 160, 89, 0.05) 1px, transparent 1px);
+  pointer-events: none;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(197, 160, 89, 0.4);
+  color: var(--evenza-gold-deep);
+  padding: 0.4rem 1.1rem;
+  border-radius: 30px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 2px 10px rgba(197, 160, 89, 0.12);
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #1a1714 !important;
+  letter-spacing: -0.03em;
+}
+
+.hero-lead {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: #5c5448 !important;
+  max-width: 640px;
+}
+
+.hero-stat-card {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(197, 160, 89, 0.35);
+  border-radius: var(--evenza-radius-md);
+  padding: 1.65rem;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 12px 36px rgba(160, 130, 70, 0.08);
+}
+
+.hero-stat-card h6, .hero-stat-card .text-white-50 {
+  color: var(--evenza-gold-dark) !important;
+}
+
+.hero-stat-card .text-light {
+  color: #5c5448 !important;
+}
+
+.hero-stat-card .text-white {
+  color: #1a1714 !important;
+}
+
+.hero-stat-card .text-warning {
+  color: var(--evenza-gold-deep) !important;
+}
+
+.hero-stat-card .border-white {
+  border-color: rgba(197, 160, 89, 0.2) !important;
+}
+
+/* ----------------------------------------------------------
+   Filter Bar & Floating Navigation
+   ---------------------------------------------------------- */
+.filter-container {
+  background: #ffffff;
+  border: 1px solid rgba(197, 160, 89, 0.3);
+  border-radius: var(--evenza-radius-md);
+  padding: 1.15rem 1.35rem;
+  box-shadow: 0 10px 30px rgba(70, 50, 20, 0.06);
+  margin-top: -2rem;
+  position: relative;
+  z-index: 10;
+}
+
+.category-filter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 30px;
+  border: 1px solid #e6dfd2;
+  background: #faf8f5;
+  color: #5c5448;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.category-filter-badge:hover {
+  background: #ffffff;
+  color: var(--evenza-gold-deep);
+  border-color: var(--evenza-gold);
+  box-shadow: 0 2px 8px rgba(197, 160, 89, 0.15);
+  transform: translateY(-1px);
+}
+
+.category-filter-badge.active {
+  background: linear-gradient(135deg, #c5a059 0%, #a37f37 100%);
+  color: #ffffff !important;
+  font-weight: 700;
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(179, 139, 67, 0.3);
+}
+
+/* ----------------------------------------------------------
+   Cards & Surfaces (Crisp Pure White with Fine Gold Edging)
+   ---------------------------------------------------------- */
+.card, .event-card, .evenza-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(197, 160, 89, 0.22) !important;
+  border-radius: var(--evenza-radius-md);
+  box-shadow: var(--evenza-shadow-card);
+  color: var(--evenza-text-main) !important;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.event-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.event-card:hover, .evenza-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--evenza-shadow-hover) !important;
+  border-color: var(--evenza-gold) !important;
+}
+
+.card-header, .card-header.bg-white {
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--evenza-border-light) !important;
+  color: var(--evenza-text-title) !important;
+}
+
+.card-footer {
+  background: #fdfbf7 !important;
+  border-top: 1px solid var(--evenza-border-light) !important;
+  color: var(--evenza-text-muted) !important;
+}
+
+.event-card-header {
+  padding: 1.35rem 1.25rem 0.75rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+/* Calendar Date Badge on Event Card */
+.calendar-date-badge {
+  width: 56px;
+  height: 58px;
+  background: #faf7f0;
+  border: 1px solid rgba(197, 160, 89, 0.35);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(197, 160, 89, 0.08);
+}
+
+.calendar-month {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--evenza-gold-dark);
+  line-height: 1;
+}
+
+.calendar-day {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1714;
+  line-height: 1.1;
+}
+
+/* Category Badges (Prestige Editorial Pills) */
+.category-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+}
+
+.cat-tech { background: #eef4fb; color: #1e457a; border: 1px solid #c9dcf4; }
+.cat-cult { background: #fdf0f2; color: #942b36; border: 1px solid #f8ccd2; }
+.cat-mgmt { background: #fff8e8; color: #9e7b34; border: 1px solid #fae4b2; }
+.cat-work { background: #f6f0fd; color: #692ea6; border: 1px solid #dfc9fa; }
+.cat-spor { background: #edf7f2; color: #1b6647; border: 1px solid #c0e5d4; }
+.cat-def  { background: #f6f3ee; color: #5c5448; border: 1px solid #e2dbce; }
+
+.event-card-body {
+  padding: 0 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.event-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.22rem;
+  font-weight: 700;
+  color: #1a1714;
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+.event-description {
+  font-size: 0.86rem;
+  color: #5c5448;
+  line-height: 1.55;
+  margin-bottom: 1rem;
+  flex-grow: 1;
+}
+
+.event-meta-row {
+  background: #faf8f4;
+  border: 1px solid #ede7dc;
+  border-radius: 8px;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.82rem;
+  color: #4a433a;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.event-meta-row i {
+  color: var(--evenza-gold-dark);
+}
+
+/* Seat Progress Bar */
+.capacity-row {
+  margin-bottom: 1rem;
+}
+
+.capacity-progress {
+  height: 6px;
+  background-color: #ede7dc;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-bar.bg-primary {
+  background: linear-gradient(90deg, #dfc187 0%, #b38b43 100%) !important;
+}
+
+.progress-bar.bg-warning {
+  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%) !important;
+}
+
+.progress-bar.bg-danger {
+  background: linear-gradient(90deg, #b91c1c 0%, #991b1b 100%) !important;
+}
+
+/* ----------------------------------------------------------
+   Buttons (Champagne Gold Luxury Styling)
+   ---------------------------------------------------------- */
+.btn-primary {
+  background: linear-gradient(135deg, #c5a059 0%, #9e7935 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 14px rgba(160, 125, 60, 0.25) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background: linear-gradient(135deg, #d4af37 0%, #b38b43 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(160, 125, 60, 0.4) !important;
+  transform: translateY(-2px);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #c5a059 0%, #9e7935 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 14px rgba(160, 125, 60, 0.25) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.btn-warning:hover, .btn-warning:focus {
+  background: linear-gradient(135deg, #d4af37 0%, #b38b43 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(160, 125, 60, 0.4) !important;
+  transform: translateY(-2px);
+}
+
+.btn-outline-light {
+  border: 1px solid rgba(197, 160, 89, 0.5) !important;
+  color: #6e521e !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(60, 45, 25, 0.04);
+  transition: all 0.2s ease-in-out !important;
+}
+
+.btn-outline-light:hover {
+  border-color: var(--evenza-gold-dark) !important;
+  background: #ffffff !important;
+  color: #4a340e !important;
+  box-shadow: 0 4px 14px rgba(197, 160, 89, 0.2);
+  transform: translateY(-2px);
+}
+
+.btn-dark {
+  background: #2b2621 !important;
+  border: 1px solid #3d362e !important;
+  color: #f7f4ee !important;
+}
+
+.btn-dark:hover {
+  background: #1c1815 !important;
+  color: var(--evenza-gold-light) !important;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #1b6647 0%, #124b33 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(27, 102, 71, 0.22) !important;
+}
+
+.btn-success:hover {
+  box-shadow: 0 6px 20px rgba(27, 102, 71, 0.35) !important;
+  transform: translateY(-2px);
+}
+
+.btn-outline-secondary {
+  border-color: #d6cebf !important;
+  color: #6b6359 !important;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #f6f2ea !important;
+  color: #2b2621 !important;
+}
+
+/* ----------------------------------------------------------
+   Forms & Controls
+   ---------------------------------------------------------- */
+.form-control, .form-select {
+  background-color: #ffffff !important;
+  border: 1px solid #ded6c8 !important;
+  color: #1a1714 !important;
+  border-radius: var(--evenza-radius-sm);
+  padding: 0.6rem 0.9rem;
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: #ffffff !important;
+  border-color: var(--evenza-gold) !important;
+  box-shadow: 0 0 0 0.25rem rgba(197, 160, 89, 0.2) !important;
+  color: #1a1714 !important;
+}
+
+.form-control::placeholder {
+  color: #a39b8e !important;
+}
+
+.input-group-text, .input-group-text.bg-light {
+  background-color: #faf7f2 !important;
+  border: 1px solid #ded6c8 !important;
+  color: var(--evenza-gold-dark) !important;
+}
+
+/* Text and Badge Accents */
+.text-dark {
+  color: #1a1714 !important;
+}
+
+.text-muted, .text-secondary {
+  color: #6b6359 !important;
+}
+
+.text-primary {
+  color: var(--evenza-gold-deep) !important;
+}
+
+.badge.bg-light {
+  background-color: #faf7f2 !important;
+  border: 1px solid #ede5d7 !important;
+  color: #4a433a !important;
+}
+
+/* ----------------------------------------------------------
+   Tables & Lists (Clean Editorial Aesthetic)
+   ---------------------------------------------------------- */
+.table {
+  color: #332f2b !important;
+  border-color: #ede5d7 !important;
+}
+
+.table > :not(caption) > * > * {
+  background-color: transparent !important;
+  border-bottom-color: #ede5d7 !important;
+  color: #332f2b !important;
+}
+
+.table thead th {
+  background-color: #faf7f1 !important;
+  color: var(--evenza-gold-deep) !important;
+  font-weight: 700;
+  border-bottom: 2px solid rgba(197, 160, 89, 0.35) !important;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.8px;
+}
+
+.table-hover > tbody > tr:hover > * {
+  background-color: rgba(197, 160, 89, 0.05) !important;
+}
+
+/* ----------------------------------------------------------
+   E-Ticket Credential Pass (Exclusive Luxury VIP Pass)
+   ---------------------------------------------------------- */
+.ticket-wrapper {
+  max-width: 840px;
+  margin: 2rem auto;
+}
+
+.ticket-pass {
+  background: #ffffff;
+  border: 1px solid rgba(197, 160, 89, 0.35);
+  border-radius: var(--evenza-radius-lg);
+  box-shadow: 0 16px 45px rgba(140, 110, 50, 0.09);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .ticket-pass {
+    flex-direction: row;
+  }
+}
+
+.ticket-body {
+  flex: 1 1 68%;
+  padding: 2.25rem;
+  position: relative;
+  background: #ffffff;
+}
+
+.ticket-stub {
+  flex: 0 0 32%;
+  background: #faf7f0;
+  color: #1a1714;
+  padding: 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  border-left: 2px dashed rgba(197, 160, 89, 0.4);
+}
+
+/* Perforation Notch Cutouts */
+@media (min-width: 768px) {
+  .ticket-stub::before, .ticket-stub::after {
+    content: "";
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    background-color: var(--evenza-bg);
+    border-radius: 50%;
+    left: -11px;
+    border: 1px solid rgba(197, 160, 89, 0.35);
+    z-index: 2;
+  }
+  .ticket-stub::before { top: -11px; }
+  .ticket-stub::after { bottom: -11px; }
+}
+
+.ticket-college-header {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--evenza-gold-dark);
+}
+
+.ticket-event-heading {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: #1a1714;
+  line-height: 1.2;
+  margin: 0.5rem 0 1.25rem;
+}
+
+.ticket-field-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 700;
+  color: #8c8376;
+  margin-bottom: 0.15rem;
+}
+
+.ticket-field-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1714;
+}
+
+.ticket-code-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.88rem;
+  font-weight: 700;
+  background: #ffffff;
+  border: 1px solid rgba(197, 160, 89, 0.4);
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  color: var(--evenza-gold-deep);
+  box-shadow: 0 2px 8px rgba(197, 160, 89, 0.12);
+}
+
+/* ----------------------------------------------------------
+   Print Styles
+   ---------------------------------------------------------- */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  header, footer, .navbar, .no-print, .btn, .alert, .evenza-hero, .top-institutional-strip {
+    display: none !important;
+  }
+  .ticket-wrapper {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .ticket-pass {
+    box-shadow: none !important;
+    border: 2px solid #000000 !important;
+    background: #ffffff !important;
+  }
+  .ticket-body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .ticket-field-value, .ticket-event-heading {
+    color: #000000 !important;
+  }
+  .ticket-stub {
+    background: #fdfbf7 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* ----------------------------------------------------------
+   Footer (Warm Sand Champagne with Refined Accents)
+   ---------------------------------------------------------- */
+.evenza-footer {
+  margin-top: auto;
+  background: #f4eee2;
+  border-top: 1px solid rgba(197, 160, 89, 0.3);
+  color: #665f54;
+  padding: 3rem 0 1.75rem;
+  font-size: 0.88rem;
+}
+
+.evenza-footer .brand-text {
+  color: #1a1714 !important;
+}
+
+.evenza-footer a {
+  color: #665f54;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.evenza-footer a:hover {
+  color: var(--evenza-gold-deep);
+}
+
+/* ----------------------------------------------------------
+   Password Toggle & Strength Meter
+   ---------------------------------------------------------- */
+.password-toggle-group {
+  position: relative;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #8c8376;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 1.1rem;
+  z-index: 5;
+  transition: color 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+  color: var(--evenza-gold-dark);
+}
+
+.strength-meter {
+  height: 5px;
+  background-color: #ede7dc;
+  border-radius: 4px;
+  margin-top: 6px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.strength-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 4px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.strength-bar.weak { width: 33%; background: #dc3545; }
+.strength-bar.medium { width: 66%; background: #f59e0b; }
+.strength-bar.strong { width: 100%; background: #1b6647; }
+
+.strength-feedback {
+  font-size: 0.75rem;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* ----------------------------------------------------------
+   Multi-Step Visual Stepper (Event Registration)
+   ---------------------------------------------------------- */
+.evenza-stepper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+.evenza-stepper::before {
+  content: "";
+  position: absolute;
+  top: 20px;
+  left: 2rem;
+  right: 2rem;
+  height: 2px;
+  background: #e6dfd2;
+  z-index: 1;
+}
+
+.step-item {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  flex: 1;
+}
+
+.step-circle {
+  width: 42px;
+  height: 42px;
+  margin: 0 auto 8px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #ded6c8;
+  color: #8c8376;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.step-item.active .step-circle {
+  background: linear-gradient(135deg, #dfba6d 0%, #a8843c 100%);
+  border-color: #a8843c;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(179, 139, 67, 0.35);
+  transform: scale(1.08);
+}
+
+.step-item.completed .step-circle {
+  background: #1b6647;
+  border-color: #1b6647;
+  color: #ffffff;
+}
+
+.step-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #787065;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.step-item.active .step-label {
+  color: #1a1714;
+}
+
+/* ----------------------------------------------------------
+   QR Scanner Viewfinder Laser Animation
+   ---------------------------------------------------------- */
+.scanner-container-wrapper {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.scanner-laser {
+  position: absolute;
+  left: 5%;
+  width: 90%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, #dfba6d 20%, #ffffff 50%, #dfba6d 80%, transparent 100%);
+  box-shadow: 0 0 15px #dfba6d, 0 0 25px rgba(223, 186, 109, 0.8);
+  z-index: 10;
+  pointer-events: none;
+  animation: scanLaser 2.2s ease-in-out infinite alternate;
+}
+
+@keyframes scanLaser {
+  0% { top: 12%; opacity: 0.2; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { top: 88%; opacity: 0.2; }
+}
+
+/* ----------------------------------------------------------
+   Barcode Strip Simulation on Ticket Stub
+   ---------------------------------------------------------- */
+.barcode-strip {
+  width: 100%;
+  height: 38px;
+  background: repeating-linear-gradient(
+    90deg,
+    #1a1714,
+    #1a1714 2px,
+    transparent 2px,
+    transparent 5px,
+    #1a1714 5px,
+    #1a1714 8px,
+    transparent 8px,
+    transparent 10px,
+    #1a1714 10px,
+    #1a1714 11px,
+    transparent 11px,
+    transparent 13px,
+    #1a1714 13px,
+    #1a1714 16px,
+    transparent 16px,
+    transparent 19px
+  );
+  opacity: 0.75;
+  border-radius: 4px;
+}
+
+/* ----------------------------------------------------------
+   Urgency / Days Left Pill Badges
+   ---------------------------------------------------------- */
+.urgency-pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.urgency-today {
+  background: #faebed;
+  color: #942b36;
+  border: 1px solid #f8ccd2;
+  animation: pulseToday 2s infinite;
+}
+
+.urgency-tomorrow {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
+
+.urgency-upcoming {
+  background: #edf7f2;
+  color: #1b6647;
+  border: 1px solid #c0e5d4;
+}
+
+.urgency-past {
+  background: #f3eee7;
+  color: #8c8376;
+  border: 1px solid #ded6c8;
+}
+
+@keyframes pulseToday {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+/* ----------------------------------------------------------
+   Toast Notifications (Floating Luxury Banner)
+   ---------------------------------------------------------- */
+.evenza-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.evenza-toast {
+  min-width: 280px;
+  max-width: 400px;
+  background: #1a1714;
+  color: #ffffff;
+  padding: 12px 18px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  border-left: 4px solid var(--evenza-gold);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.88rem;
+  animation: slideInToast 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.evenza-toast.toast-success { border-left-color: #1b6647; }
+.evenza-toast.toast-warning { border-left-color: #b45309; }
+.evenza-toast.toast-danger  { border-left-color: #942b36; }
+
+@keyframes slideInToast {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ----------------------------------------------------------
+   Floating Scroll-to-Top Button
+   ---------------------------------------------------------- */
+#scrollToTopBtn {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid rgba(197, 160, 89, 0.4);
+  color: var(--evenza-gold-deep);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 990;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease;
+}
+
+#scrollToTopBtn.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+#scrollToTopBtn:hover {
+  background: var(--evenza-gold);
+  color: #ffffff;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(197, 160, 89, 0.35);
+}

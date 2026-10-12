@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evenza — Campus Event Management System</title>
+    <meta name="description" content="Evenza is the official campus event management, registration, and verified digital entry pass system for college events.">
+    <!-- DNS prefetch & CDN preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Custom Evenza Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .brand-monogram {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #d4af37, #f3e5ab);
+            color: #0b132b;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+        .event-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(220, 215, 205, 0.7);
+            box-shadow: 0 10px 30px rgba(11, 19, 43, 0.05);
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .event-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(11, 19, 43, 0.12);
+            border-color: #d4af37;
+        }
+        .ticket-modal-card {
+            background: #ffffff;
+            border: 2px dashed #d4af37;
+            border-radius: 16px;
+            position: relative;
+        }
+        .ticket-header {
+            background: linear-gradient(135deg, #0b132b 0%, #1c2541 100%);
+            color: #ffffff;
+            border-radius: 14px 14px 0 0;
+            padding: 1.5rem;
+        }
+        .qr-wrapper {
+            background: #faf8f5;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #e2ded5;
+            display: inline-block;
+        }
+        @media print {
+            body * { visibility: hidden; }
+            #printableTicket, #printableTicket * { visibility: visible; }
+            #printableTicket { position: absolute; left: 0; top: 0; width: 100%; border: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Main Navigation Header -->
+<header class="sticky-top">
+    <nav class="navbar navbar-expand-lg evenza-navbar navbar-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+                <div class="brand-monogram">E</div>
+                <div class="d-flex flex-column">
+                    <span class="brand-text">Evenza</span>
+                    <span class="brand-subtext">Campus Events Portal</span>
+                </div>
+            </a>
+            
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#events-roster">
+                            <i class="bi bi-calendar3 me-1"></i> Browse Events
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:void(0)" onclick="openMyTicketsModal()">
+                            <i class="bi bi-ticket-perforated me-1"></i> My Registrations
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:void(0)" onclick="openAdminModal()">
+                            <i class="bi bi-shield-lock me-1"></i> Admin Console
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0 flex-wrap">
+                    <button class="btn btn-warning px-3 py-1 rounded-pill fw-bold text-dark shadow-sm" onclick="openRegisterModal()">
+                        <i class="bi bi-person-plus-fill me-1"></i> Register Pass
+                    </button>
+                    <a href="https://github.com/shreegowribk/event-management" target="_blank" rel="noopener" class="btn btn-dark px-3 py-1 rounded-pill fw-semibold shadow-sm border border-secondary border-opacity-50 d-inline-flex align-items-center gap-1 text-light">
+                        <i class="bi bi-github text-warning"></i> GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- Hero Banner -->
+<section class="evenza-hero">
+    <div class="container hero-content">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <div class="hero-tag">
+                    <i class="bi bi-stars me-1 text-warning"></i> Evenza Events Portal &bull; Academic Year 2026
+                </div>
+                <h1 class="hero-title mb-3">
+                    Campus Events, Conclaves &amp; Conferences
+                </h1>
+                <p class="hero-lead mb-4">
+                    The official digital platform to explore campus academic activities, reserve verified attendance, and generate electronic QR entry passes.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="#events-roster" class="btn btn-warning px-4 py-2 fw-bold text-dark rounded-pill">
+                        <i class="bi bi-calendar-event me-2"></i> Explore Events Schedule
+                    </a>
+                    <button class="btn btn-outline-light px-4 py-2 fw-semibold rounded-pill" onclick="openRegisterModal()">
+                        <i class="bi bi-person-badge me-2"></i> Register For Conference
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4 d-none d-lg-block">
+                <div class="hero-stat-card">
+                    <h6 class="text-white-50 text-uppercase small fw-bold mb-3">Quick Overview</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-white border-opacity-10">
+                        <span class="text-light small">Featured Event:</span>
+                        <span class="fw-bold fs-6 text-white brand-font">Conference 2026</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-white border-opacity-10">
+                        <span class="text-light small">Venue:</span>
+                        <span class="fw-semibold text-warning small">BMS CCM Auditorium</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-white border-opacity-10">
+                        <span class="text-light small">Remaining Seats:</span>
+                        <span class="fw-bold fs-5 text-warning brand-font" id="heroSeatsRemaining">299 / 300</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-white border-opacity-10">
+                        <span class="text-light small">Entry Pass:</span>
+                        <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50">QR Verified</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center pt-1">
+                        <span class="text-light small">Portal Status:</span>
+                        <span class="text-warning small fw-semibold"><i class="bi bi-check-circle-fill me-1"></i> Live &amp; Online</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filter & Search Floating Bar -->
+<div class="container" id="events-roster">
+    <div class="filter-container">
+        <div class="row g-2 align-items-center mb-3">
+            <div class="col-lg-6 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" id="eventSearchInput" class="form-control border-start-0 ps-0" placeholder="Search conference, BMS CCM, date, or topics..." autocomplete="off">
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 text-md-end text-start mt-2 mt-md-0">
+                <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-semibold" id="eventsCountBadge">
+                    Showing 1 Featured Event
+                </span>
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <span class="text-muted small fw-semibold me-1"><i class="bi bi-funnel me-1"></i>Categories:</span>
+            <button type="button" class="category-filter-badge active" data-cat="all">All Disciplines</button>
+            <button type="button" class="category-filter-badge" data-cat="Academic">Academic</button>
+            <button type="button" class="category-filter-badge" data-cat="Technical">Technical</button>
+            <button type="button" class="category-filter-badge" data-cat="Cultural">Cultural</button>
+            <button type="button" class="category-filter-badge" data-cat="Management">Management</button>
+        </div>
+    </div>
+</div>
+
+<!-- Events Catalog Section -->
+<main class="container my-5">
+    <div class="row g-4" id="eventsGrid">
+        <!-- Event Card: Conference -->
+        <div class="col-lg-6 col-md-8 mx-auto event-item-col" data-cat="Academic" data-title="conference confluence 2026 bms ccm">
+            <div class="event-card h-100">
+                <div class="event-card-header p-4" style="background: linear-gradient(135deg, #0b132b 0%, #1c2541 100%); color: #fff;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-warning text-dark fw-bold px-3 py-1 rounded-pill">
+                            <i class="bi bi-mortarboard-fill me-1"></i> Academic
+                        </span>
+                        <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-3 py-1 rounded-pill">
+                            <i class="bi bi-hourglass-split me-1"></i> Upcoming
+                        </span>
+                    </div>
+                    <h3 class="fw-bold mb-1 brand-font text-white">Conference</h3>
+                    <p class="text-white-50 small mb-0"><i class="bi bi-bookmark-star-fill text-warning me-1"></i> 2nd National Conference &mdash; Confluence 2026</p>
+                </div>
+
+                <div class="event-card-body p-4 flex-grow-1">
+                    <p class="text-secondary mb-4" style="line-height: 1.6;">
+                        A premier academic and research conclave bringing together scholars, students, faculty, and industry leaders to discuss innovations, modern methodologies, and technological disruptions.
+                    </p>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="p-3 rounded bg-light border">
+                                <div class="text-muted small fw-semibold"><i class="bi bi-calendar-check text-primary me-1"></i> Date</div>
+                                <div class="fw-bold text-dark mt-1">Oct 25, 2026</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 rounded bg-light border">
+                                <div class="text-muted small fw-semibold"><i class="bi bi-clock-history text-primary me-1"></i> Time</div>
+                                <div class="fw-bold text-dark mt-1">10:00 AM IST</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 rounded bg-light border">
+                                <div class="text-muted small fw-semibold"><i class="bi bi-geo-alt-fill text-danger me-1"></i> Venue</div>
+                                <div class="fw-bold text-dark mt-1">BMS CCM (Campus Main Auditorium)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Capacity Tracker -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center small mb-1">
+                            <span class="text-muted fw-semibold">Auditorium Capacity:</span>
+                            <span class="fw-bold text-dark" id="seatsCounterText">299 / 300 Seats Left</span>
+                        </div>
+                        <div class="progress" style="height: 8px; border-radius: 4px;">
+                            <div class="progress-bar bg-warning" id="seatsProgressBar" role="progressbar" style="width: 1%;" aria-valuenow="1" aria-valuemin="0" aria-valuemax="300"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-warning py-2 fw-bold text-dark rounded-pill shadow-sm" onclick="openRegisterModal()">
+                            <i class="bi bi-ticket-perforated-fill me-1"></i> Register for Free Entry Pass
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Registration Modal -->
+<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header bg-dark text-white p-4" style="border-radius: 16px 16px 0 0;">
+                <div>
+                    <h5 class="modal-title fw-bold" id="registerModalLabel">
+                        <i class="bi bi-mortarboard-fill text-warning me-2"></i> Register: Conference 2026
+                    </h5>
+                    <p class="text-white-50 small mb-0">Fill in your student credentials to reserve your seat and generate an official QR E-Ticket.</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="registrationForm" onsubmit="handleRegistrationSubmit(event)">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Full Name *</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                            <input type="text" id="regFullName" class="form-control" placeholder="e.g. Shreegowri B K" required>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-secondary">USN / Roll No. *</label>
+                            <input type="text" id="regUsn" class="form-control text-uppercase" placeholder="e.g. 1BM22CS042" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-secondary">Phone Number *</label>
+                            <input type="tel" id="regPhone" class="form-control" placeholder="10-digit mobile" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Email Address *</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
+                            <input type="email" id="regEmail" class="form-control" placeholder="student@bms.edu.in" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-secondary">Institution / Department *</label>
+                        <input type="text" id="regCollege" class="form-control" value="BMS College of Commerce & Management" required>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-warning py-2 fw-bold text-dark rounded-pill">
+                            <i class="bi bi-qr-code me-1"></i> Confirm &amp; Generate E-Ticket
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Digital E-Ticket Pass Modal -->
+<div class="modal fade" id="ticketModal" tabindex="-1" aria-labelledby="ticketModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+            <div class="modal-body p-0">
+                <div class="ticket-modal-card" id="printableTicket">
+                    <!-- Ticket Header -->
+                    <div class="ticket-header text-center">
+                        <div class="d-inline-flex align-items-center gap-2 mb-2">
+                            <div class="brand-monogram" style="width: 30px; height: 30px; font-size: 0.85rem;">E</div>
+                            <span class="fw-bold tracking-wide text-warning fs-5">EVENZA OFFICIAL ENTRY PASS</span>
+                        </div>
+                        <h4 class="fw-bold text-white mb-1" id="ticketEventName">Conference 2026</h4>
+                        <p class="text-white-50 small mb-0"><i class="bi bi-geo-alt-fill text-warning me-1"></i> BMS CCM Main Auditorium</p>
+                    </div>
+
+                    <!-- Ticket Body -->
+                    <div class="p-4 bg-white text-center">
+                        <div class="qr-wrapper mb-3">
+                            <img id="ticketQrImage" src="" alt="Ticket QR Code" width="160" height="160" class="img-fluid rounded">
+                        </div>
+
+                        <div class="mb-3">
+                            <span class="badge bg-light text-dark border px-3 py-1 font-monospace fw-bold fs-6" id="ticketNumberDisplay">
+                                EVZ-CONF-2026-XXXX
+                            </span>
+                        </div>
+
+                        <div class="row g-2 text-start p-3 bg-light rounded border mb-3 small">
+                            <div class="col-6">
+                                <span class="text-muted d-block">Attendee:</span>
+                                <strong class="text-dark" id="ticketStudentName">-</strong>
+                            </div>
+                            <div class="col-6">
+                                <span class="text-muted d-block">USN / ID:</span>
+                                <strong class="text-dark font-monospace" id="ticketStudentUsn">-</strong>
+                            </div>
+                            <div class="col-6">
+                                <span class="text-muted d-block">Date:</span>
+                                <strong class="text-dark">Oct 25, 2026</strong>
+                            </div>
+                            <div class="col-6">
+                                <span class="text-muted d-block">Reporting Time:</span>
+                                <strong class="text-dark">09:30 AM IST</strong>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-success py-2 small mb-0 border-0 bg-success bg-opacity-10 text-success fw-semibold">
+                            <i class="bi bi-shield-check me-1"></i> Verified Pass &bull; Present QR code at campus registration desk
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill btn-sm" data-bs-dismiss="modal">Close</button>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-dark rounded-pill btn-sm fw-semibold" onclick="copyPassId()">
+                            <i class="bi bi-clipboard me-1"></i> Copy ID
+                        </button>
+                        <button type="button" class="btn btn-warning rounded-pill btn-sm fw-bold text-dark" onclick="window.print()">
+                            <i class="bi bi-printer me-1"></i> Print Pass
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- My Registrations Modal -->
+<div class="modal fade" id="myTicketsModal" tabindex="-1" aria-labelledby="myTicketsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header bg-dark text-white p-4" style="border-radius: 16px 16px 0 0;">
+                <h5 class="modal-title fw-bold" id="myTicketsModalLabel">
+                    <i class="bi bi-ticket-perforated-fill text-warning me-2"></i> My Issued Event Passes
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="myTicketsListContainer">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Console Modal -->
+<div class="modal fade" id="adminConsoleModal" tabindex="-1" aria-labelledby="adminConsoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header bg-dark text-white p-4" style="border-radius: 16px 16px 0 0;">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="brand-monogram" style="width: 32px; height: 32px; font-size: 0.85rem;">E</div>
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0">Evenza &mdash; Administrator Console</h5>
+                        <span class="text-white-50 small">Conference Attendee Roster &amp; Live Verification</span>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded border text-center">
+                            <span class="text-muted small fw-bold">TOTAL CAPACITY</span>
+                            <h3 class="fw-bold text-dark mt-1 mb-0">300</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded border text-center">
+                            <span class="text-muted small fw-bold">CONFIRMED ATTENDEES</span>
+                            <h3 class="fw-bold text-primary mt-1 mb-0" id="adminTotalRegs">1</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded border text-center">
+                            <span class="text-muted small fw-bold">CHECKED-IN ENTRANCES</span>
+                            <h3 class="fw-bold text-success mt-1 mb-0" id="adminCheckedIn">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive border rounded">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr class="small text-uppercase">
+                                <th>#</th>
+                                <th>Student Attendee</th>
+                                <th>USN / ID</th>
+                                <th>Ticket Number</th>
+                                <th>Status</th>
+                                <th class="text-end">Verification Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminAttendeesTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary rounded-pill btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Toast Container -->
+<div class="evenza-toast-container" id="evenzaToastContainer" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999;"></div>
+
+<!-- Scroll to Top Button -->
+<button type="button" id="scrollToTopBtn" aria-label="Scroll to top" title="Scroll to Top" style="position: fixed; bottom: 24px; left: 24px; z-index: 1000; width: 44px; height: 44px; border-radius: 50%; border: none; background: #0b132b; color: #fff; display: none;">
+    <i class="bi bi-chevron-up"></i>
+</button>
+
+<footer class="evenza-footer mt-5 py-4 border-top">
+    <div class="container text-center text-muted small">
+        <p class="mb-1">&copy; 2026 Evenza Campus Event Management &bull; BMS College of Commerce &amp; Management</p>
+        <p class="mb-0">Powered by Evenza Portal &bull; Verified Digital E-Ticketing</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// State Management
+const INITIAL_REGISTRATIONS = [
+    {
+        id: "EVZ-20261001-E007-S002-EBA297",
+        name: "Campus Delegate",
+        usn: "1BM22CS001",
+        email: "delegate@bms.edu.in",
+        phone: "9876543210",
+        college: "BMS CCM",
+        registeredAt: "2026-10-01 10:50:19",
+        checkedIn: false
+    }
+];
+
+function getStoredRegistrations() {
+    const data = localStorage.getItem('evenza_registrations');
+    if (!data) {
+        localStorage.setItem('evenza_registrations', JSON.stringify(INITIAL_REGISTRATIONS));
+        return INITIAL_REGISTRATIONS;
+    }
+    return JSON.parse(data);
+}
+
+function saveRegistrations(regs) {
+    localStorage.setItem('evenza_registrations', JSON.stringify(regs));
+    updateSeatsDisplay();
+}
+
+function updateSeatsDisplay() {
+    const regs = getStoredRegistrations();
+    const totalCapacity = 300;
+    const remaining = Math.max(0, totalCapacity - regs.length);
+    
+    const counter = document.getElementById('seatsCounterText');
+    if (counter) counter.textContent = `${remaining} / ${totalCapacity} Seats Left`;
+
+    const heroSeats = document.getElementById('heroSeatsRemaining');
+    if (heroSeats) heroSeats.textContent = `${remaining} / ${totalCapacity}`;
+
+    const pBar = document.getElementById('seatsProgressBar');
+    if (pBar) {
+        const pct = Math.min(100, Math.round((regs.length / totalCapacity) * 100));
+        pBar.style.width = `${pct}%`;
+    }
+}
+
+// Toast Notifications
+function showEvenzaToast(msg, type = 'success') {
+    const container = document.getElementById('evenzaToastContainer');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} shadow-lg d-flex align-items-center gap-2 mb-2`;
+    toast.style.borderRadius = '12px';
+    toast.innerHTML = `
+        <i class="bi bi-check-circle-fill"></i>
+        <div>${msg}</div>
+        <button type="button" class="btn-close ms-auto" onclick="this.parentElement.remove()"></button>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
+
+// Modal Triggers
+function openRegisterModal() {
+    const modal = new bootstrap.Modal(document.getElementById('registerModal'));
+    modal.show();
+}
+
+function handleRegistrationSubmit(e) {
+    e.preventDefault();
+    const name = document.getElementById('regFullName').value.trim();
+    const usn = document.getElementById('regUsn').value.trim().toUpperCase();
+    const email = document.getElementById('regEmail').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const college = document.getElementById('regCollege').value.trim();
+
+    if (!name || !usn || !email) {
+        alert('Please fill out all required fields.');
+        return;
+    }
+
+    const regs = getStoredRegistrations();
+    const randCode = Math.floor(1000 + Math.random() * 9000);
+    const ticketId = `EVZ-20261025-E007-${usn.slice(-4)}-${randCode}`;
+
+    const newReg = {
+        id: ticketId,
+        name,
+        usn,
+        email,
+        phone,
+        college,
+        registeredAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
+        checkedIn: false
+    };
+
+    regs.push(newReg);
+    saveRegistrations(regs);
+
+    bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+    document.getElementById('registrationForm').reset();
+    showEvenzaToast(`Registration successful! Pass generated: ${ticketId}`);
+
+    displayTicket(newReg);
+}
+
+function displayTicket(reg) {
+    document.getElementById('ticketEventName').textContent = 'Conference: Confluence 2026';
+    document.getElementById('ticketNumberDisplay').textContent = reg.id;
+    document.getElementById('ticketStudentName').textContent = reg.name;
+    document.getElementById('ticketStudentUsn').textContent = reg.usn;
+
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent('https://evenza.campus.bms/verify?ticket=' + reg.id)}&color=0b132b`;
+    document.getElementById('ticketQrImage').src = qrUrl;
+
+    const ticketModal = new bootstrap.Modal(document.getElementById('ticketModal'));
+    ticketModal.show();
+}
+
+function copyPassId() {
+    const id = document.getElementById('ticketNumberDisplay').textContent.trim();
+    navigator.clipboard.writeText(id).then(() => {
+        showEvenzaToast(`Copied Pass ID: ${id}`);
+    });
+}
+
+function openMyTicketsModal() {
+    const regs = getStoredRegistrations();
+    const container = document.getElementById('myTicketsListContainer');
+    
+    if (regs.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <i class="bi bi-ticket-perforated fs-1 text-muted"></i>
+                <h6 class="mt-3 text-secondary">No passes issued yet</h6>
+                <button class="btn btn-warning rounded-pill btn-sm mt-2 fw-bold text-dark" onclick="bootstrap.Modal.getInstance(document.getElementById('myTicketsModal')).hide(); openRegisterModal();">Register Now</button>
+            </div>
+        `;
+    } else {
+        let html = '<div class="list-group gap-2">';
+        regs.forEach((r, idx) => {
+            html += `
+                <div class="list-group-item d-flex justify-content-between align-items-center p-3 rounded border">
+                    <div>
+                        <span class="badge bg-warning text-dark me-2">Conference 2026</span>
+                        <strong class="text-dark">${r.name}</strong> (${r.usn})
+                        <div class="text-muted small mt-1 font-monospace"><i class="bi bi-qr-code me-1"></i>${r.id}</div>
+                    </div>
+                    <button class="btn btn-outline-dark rounded-pill btn-sm" onclick="bootstrap.Modal.getInstance(document.getElementById('myTicketsModal')).hide(); displayTicket(getStoredRegistrations()[${idx}]);">
+                        <i class="bi bi-eye me-1"></i> View Pass
+                    </button>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('myTicketsModal'));
+    modal.show();
+}
+
+function openAdminModal() {
+    const regs = getStoredRegistrations();
+    document.getElementById('adminTotalRegs').textContent = regs.length;
+    document.getElementById('adminCheckedIn').textContent = regs.filter(r => r.checkedIn).length;
+
+    const tbody = document.getElementById('adminAttendeesTableBody');
+    tbody.innerHTML = regs.map((r, i) => `
+        <tr>
+            <td class="text-muted small">${i + 1}</td>
+            <td>
+                <div class="fw-bold">${r.name}</div>
+                <div class="text-muted small">${r.email}</div>
+            </td>
+            <td class="font-monospace">${r.usn}</td>
+            <td class="font-monospace small">${r.id}</td>
+            <td>
+                <span class="badge ${r.checkedIn ? 'bg-success' : 'bg-secondary'} rounded-pill">
+                    ${r.checkedIn ? 'Checked In' : 'Registered'}
+                </span>
+            </td>
+            <td class="text-end">
+                <button class="btn btn-sm ${r.checkedIn ? 'btn-outline-danger' : 'btn-outline-success'} rounded-pill px-3" onclick="toggleCheckIn('${r.id}')">
+                    ${r.checkedIn ? 'Undo Check-In' : 'Mark Check-In'}
+                </button>
+            </td>
+        </tr>
+    `).join('');
+
+    const modal = new bootstrap.Modal(document.getElementById('adminConsoleModal'));
+    modal.show();
+}
+
+function toggleCheckIn(ticketId) {
+    const regs = getStoredRegistrations();
+    const item = regs.find(r => r.id === ticketId);
+    if (item) {
+        item.checkedIn = !item.checkedIn;
+        saveRegistrations(regs);
+        openAdminModal();
+        showEvenzaToast(item.checkedIn ? `Attendee ${item.name} checked in!` : `Check-in reverted for ${item.name}`);
+    }
+}
+
+// Live Search & Category Filtering
+document.addEventListener('DOMContentLoaded', () => {
+    updateSeatsDisplay();
+
+    const searchInput = document.getElementById('eventSearchInput');
+    const cards = document.querySelectorAll('.event-item-col');
+    const badges = document.querySelectorAll('.category-filter-badge');
+    let activeCat = 'all';
+
+    function filterEvents() {
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        let count = 0;
+        cards.forEach(card => {
+            const title = card.getAttribute('data-title') || '';
+            const cat = card.getAttribute('data-cat') || '';
+            const matchQ = !query || title.includes(query) || cat.toLowerCase().includes(query);
+            const matchC = activeCat === 'all' || cat.toLowerCase() === activeCat.toLowerCase();
+
+            if (matchQ && matchC) {
+                card.style.display = '';
+                count++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        const badge = document.getElementById('eventsCountBadge');
+        if (badge) badge.textContent = `Showing ${count} Event${count === 1 ? '' : 's'}`;
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', filterEvents);
+    }
+
+    badges.forEach(b => {
+        b.addEventListener('click', function() {
+            badges.forEach(x => x.classList.remove('active'));
+            this.classList.add('active');
+            activeCat = this.getAttribute('data-cat') || 'all';
+            filterEvents();
+        });
+    });
+
+    const scrollBtn = document.getElementById('scrollToTopBtn');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            scrollBtn.style.display = 'block';
+        } else {
+            scrollBtn.style.display = 'none';
+        }
+    });
+    scrollBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+});
+</script>
+</body>
+</html>

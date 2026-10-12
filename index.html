@@ -410,6 +410,11 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- Firebase SDKs for Real-Time Cross-Device Synchronization -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-db.js"></script>
+
 <script>
 // =========================================================================
 // DATA ACCESS & PERSISTENCE
@@ -650,6 +655,11 @@ function handleRegistrationSubmit(e) {
     regs.push(newReg);
     saveRegistrations(regs);
 
+    // Sync to Real-Time Cloud Firestore across all devices
+    if (window.EvenzaCloud && window.EvenzaCloud.isReady()) {
+        window.EvenzaCloud.saveRegistration(newReg).catch(err => console.warn('Cloud sync error:', err));
+    }
+
     bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
     document.getElementById('registrationForm').reset();
     showEvenzaToast(`Registration successful! Pass generated: ${ticketId}`);
@@ -723,6 +733,18 @@ function openMyTicketsModal() {
 // Initialize on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
     renderEventsGrid();
+
+    // Attach real-time cloud listeners for live updates from other devices
+    if (window.EvenzaCloud) {
+        window.EvenzaCloud.onEventsUpdated(() => {
+            console.log('[Evenza] Received live events update from cloud');
+            renderEventsGrid();
+        });
+        window.EvenzaCloud.onRegistrationsUpdated(() => {
+            console.log('[Evenza] Received live registrations update from cloud');
+            renderEventsGrid();
+        });
+    }
 
     const searchInput = document.getElementById('eventSearchInput');
     if (searchInput) {

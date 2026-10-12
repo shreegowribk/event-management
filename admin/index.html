@@ -163,7 +163,11 @@
                     </li>
                 </ul>
 
-                <div class="d-flex align-items-center gap-3 ms-auto">
+                <div class="d-flex align-items-center gap-2 ms-auto flex-wrap">
+                    <button class="btn btn-sm rounded-pill px-3 py-1 fw-bold text-white shadow-sm d-inline-flex align-items-center gap-1" id="cloudSyncStatusBtn" onclick="openCloudSyncModal()" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);" title="Cross-Device Real-time Sync Status">
+                        <i class="bi bi-cloud-arrow-up-fill text-warning"></i>
+                        <span id="cloudStatusLabel">Cloud Sync</span>
+                    </button>
                     <a href="../student/" class="btn btn-warning rounded-pill btn-sm px-3 fw-bold text-dark shadow-sm">
                         <i class="bi bi-mortarboard-fill me-1"></i> Student Portal
                     </a>
@@ -678,6 +682,75 @@
     </div>
 </div>
 
+<!-- Cloud Sync / Firebase Settings Modal -->
+<div class="modal fade" id="cloudSyncModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-bottom p-4" style="background: linear-gradient(135deg, #0b132b 0%, #1c2541 100%); color: #fff;">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="brand-monogram">⚡</div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-white mb-0">Cross-Device Cloud Synchronization</h5>
+                        <small class="text-warning">Google Firebase Realtime &bull; Free Forever Tier</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <!-- Current Status Card -->
+                <div class="card p-3 rounded-3 border mb-4" id="cloudSyncStatusCard" style="background: #f8fafc;">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <span class="text-muted small d-block">Current Connection Status:</span>
+                            <span class="badge bg-secondary fs-6 px-3 py-1 rounded-pill" id="cloudModalStatusBadge">
+                                <i class="bi bi-hdd-network me-1"></i> Checking...
+                            </span>
+                        </div>
+                        <div id="cloudModalProjectDisplay" class="text-end small text-muted">
+                            Project: <strong class="text-dark font-monospace" id="cloudModalProjectId">None (Local Storage)</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-dark small">
+                        Paste Firebase Configuration Object:
+                    </label>
+                    <textarea class="form-control font-monospace small" id="cloudConfigInput" rows="6" placeholder='{
+  "apiKey": "AIzaSy...",
+  "authDomain": "evenza-live.firebaseapp.com",
+  "projectId": "evenza-live",
+  "storageBucket": "evenza-live.appspot.com",
+  "messagingSenderId": "...",
+  "appId": "..."
+}'></textarea>
+                    <small class="text-muted">You can paste the raw JSON or the copied <code>const firebaseConfig = { ... }</code> snippet directly.</small>
+                </div>
+
+                <div class="p-3 rounded-3 bg-light border small text-secondary">
+                    <h6 class="fw-bold text-dark mb-2"><i class="bi bi-info-circle-fill text-primary me-1"></i> Quick 2-Minute Setup Instructions:</h6>
+                    <ol class="mb-0 ps-3">
+                        <li>Visit <a href="https://console.firebase.google.com/" target="_blank" class="fw-bold text-primary">Firebase Console</a> and click <strong>Create a project</strong> (name it <em>Evenza</em>).</li>
+                        <li>In the left sidebar, click <strong>Build &rarr; Firestore Database</strong> &rarr; click <strong>Create database</strong> &rarr; select <strong>Start in test mode</strong>.</li>
+                        <li>Go to <strong>Project Settings (gear icon) &rarr; General &rarr; Your apps</strong>, click the Web icon <code>&lt;/&gt;</code>, copy the <code>firebaseConfig</code> object, and paste it here!</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="modal-footer p-3 bg-light d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-danger rounded-pill px-3 btn-sm" onclick="clearCloudConfig()">
+                    <i class="bi bi-trash me-1"></i> Revert to Local Storage
+                </button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-warning text-dark fw-bold rounded-pill px-4" onclick="saveCloudConfigFromModal()">
+                        <i class="bi bi-cloud-arrow-up-fill me-1"></i> Save &amp; Connect Cloud
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <footer class="bg-white border-top py-3 text-center text-muted small mt-auto">
     <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
@@ -694,6 +767,11 @@
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Firebase SDKs for Real-Time Cross-Device Synchronization -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-db.js"></script>
 
 <script>
 // =========================================================================
@@ -1000,6 +1078,11 @@ function handleAddEventSubmit(e) {
     events.push(newEvent);
     saveEvents(events);
 
+    // Sync to Real-Time Cloud Firestore across all devices
+    if (window.EvenzaCloud && window.EvenzaCloud.isReady()) {
+        window.EvenzaCloud.saveEvent(newEvent).catch(err => console.warn('Cloud sync error:', err));
+    }
+
     bootstrap.Modal.getInstance(document.getElementById('addEventModal')).hide();
     document.getElementById('addEventForm').reset();
     showToast(`Event "${newEvent.name}" published successfully!`);
@@ -1041,6 +1124,12 @@ function handleEditEventSubmit(e) {
     evt.description = document.getElementById('editEventDescription').value.trim();
 
     saveEvents(events);
+
+    // Sync update to Real-Time Cloud Firestore
+    if (window.EvenzaCloud && window.EvenzaCloud.isReady()) {
+        window.EvenzaCloud.saveEvent(evt).catch(err => console.warn('Cloud sync error:', err));
+    }
+
     bootstrap.Modal.getInstance(document.getElementById('editEventModal')).hide();
     showToast(`Updated "${evt.name}" successfully!`);
 }
@@ -1050,6 +1139,12 @@ function deleteEvent(eventId) {
     let events = getStoredEvents();
     events = events.filter(e => e.id !== eventId);
     saveEvents(events);
+
+    // Sync delete to Real-Time Cloud Firestore
+    if (window.EvenzaCloud && window.EvenzaCloud.isReady()) {
+        window.EvenzaCloud.deleteEvent(eventId).catch(err => console.warn('Cloud delete error:', err));
+    }
+
     showToast("Event removed from directory.", "info");
 }
 
@@ -1136,6 +1231,15 @@ function toggleRosterCheckIn(ticketId) {
     item.checkedIn = !item.checkedIn;
     item.checkedInAt = item.checkedIn ? new Date().toISOString().replace('T', ' ').substring(0, 19) : null;
     saveRegistrations(regs);
+
+    // Sync check-in status to Real-Time Cloud Firestore
+    if (window.EvenzaCloud && window.EvenzaCloud.isReady()) {
+        window.EvenzaCloud.updateRegistration(item.id, { 
+            checkedIn: item.checkedIn, 
+            checkedInAt: item.checkedInAt 
+        }).catch(err => console.warn('Cloud update checkin error:', err));
+    }
+
     showToast(item.checkedIn ? `Marked ${item.name} as Checked In!` : `Check-in reverted for ${item.name}.`, item.checkedIn ? 'success' : 'info');
     playSoundFeedback(item.checkedIn ? 'success' : 'error');
 }
@@ -1375,8 +1479,106 @@ function handlePasswordUpdate(e) {
     showToast("Master password updated successfully!");
 }
 
+// =========================================================================
+// CLOUD SYNC SETTINGS CONTROLLER (FIREBASE FIRESTORE)
+// =========================================================================
+
+function updateCloudStatusUI(isConnected, error = null, projectId = '') {
+    const btnLabel = document.getElementById('cloudStatusLabel');
+    const modalBadge = document.getElementById('cloudModalStatusBadge');
+    const modalProject = document.getElementById('cloudModalProjectId');
+    
+    if (isConnected) {
+        if (btnLabel) btnLabel.innerHTML = '<span class="text-success fw-bold">&bull; Live Cloud</span>';
+        if (modalBadge) {
+            modalBadge.className = 'badge bg-success fs-6 px-3 py-1 rounded-pill';
+            modalBadge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Connected &amp; Real-time Sync Active';
+        }
+        if (modalProject) modalProject.textContent = projectId || 'Connected';
+    } else {
+        if (btnLabel) btnLabel.innerHTML = '<span class="text-warning fw-bold">&bull; Local Mode</span>';
+        if (modalBadge) {
+            modalBadge.className = 'badge bg-secondary fs-6 px-3 py-1 rounded-pill';
+            modalBadge.innerHTML = '<i class="bi bi-hdd me-1"></i> Local Storage Mode (Offline)';
+        }
+        if (modalProject) modalProject.textContent = 'None (Local Storage)';
+    }
+}
+
+function openCloudSyncModal() {
+    const cfg = window.EvenzaCloud ? window.EvenzaCloud.getConfig() : null;
+    const input = document.getElementById('cloudConfigInput');
+    if (input && cfg && cfg.apiKey) {
+        input.value = JSON.stringify(cfg, null, 2);
+    }
+    const isConn = window.EvenzaCloud ? window.EvenzaCloud.isReady() : false;
+    updateCloudStatusUI(isConn, null, cfg ? cfg.projectId : '');
+    const modal = new bootstrap.Modal(document.getElementById('cloudSyncModal'));
+    modal.show();
+}
+
+function saveCloudConfigFromModal() {
+    const raw = document.getElementById('cloudConfigInput').value.trim();
+    if (!raw) {
+        showToast("Please paste your Firebase configuration.", "warning");
+        return;
+    }
+
+    try {
+        let parsed = null;
+        let clean = raw.replace(/^const\s+firebaseConfig\s*=\s*/, '').replace(/;$/, '').trim();
+        try {
+            parsed = JSON.parse(clean);
+        } catch (e) {
+            parsed = new Function(`return (${clean})`)();
+        }
+
+        if (!parsed || !parsed.apiKey || !parsed.projectId) {
+            throw new Error("Configuration must include 'apiKey' and 'projectId'.");
+        }
+
+        if (window.EvenzaCloud) {
+            window.EvenzaCloud.saveConfig(parsed);
+            showToast("Firebase Cloud Sync activated! Live updates are now running across all devices.", "success");
+            bootstrap.Modal.getInstance(document.getElementById('cloudSyncModal')).hide();
+        }
+    } catch (err) {
+        alert("Failed to parse Firebase config: " + err.message);
+    }
+}
+
+function clearCloudConfig() {
+    if (!confirm("Are you sure you want to revert to Local Storage mode?")) return;
+    localStorage.removeItem('evenza_firebase_config');
+    showToast("Reverted to local browser storage.", "info");
+    bootstrap.Modal.getInstance(document.getElementById('cloudSyncModal')).hide();
+    location.reload();
+}
+
+window.addEventListener('evenza:cloudStatus', (e) => {
+    updateCloudStatusUI(e.detail.isConnected, e.detail.error, e.detail.projectId);
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     const hash = window.location.hash.replace('#', '') || 'dashboard';
+
+    // Hook Real-time Cloud updates from other devices
+    if (window.EvenzaCloud) {
+        window.EvenzaCloud.onEventsUpdated(() => {
+            console.log('[Evenza Admin] Received real-time events from cloud');
+            updateKPIs();
+            renderEventsTable();
+            populateEventFilters();
+        });
+        window.EvenzaCloud.onRegistrationsUpdated(() => {
+            console.log('[Evenza Admin] Received real-time registrations from cloud');
+            updateKPIs();
+            renderRosterTable();
+            renderEventsTable();
+        });
+        const cfg = window.EvenzaCloud.getConfig();
+        updateCloudStatusUI(window.EvenzaCloud.isReady(), null, cfg ? cfg.projectId : '');
+    }
 
     if (isSessionAdminLoggedIn()) {
         switchTab(hash);

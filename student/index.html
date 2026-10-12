@@ -431,6 +431,11 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- Firebase SDKs for Real-Time Cross-Device Synchronization -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-db.js"></script>
+
 <script>
 // =========================================================================
 // DATA ACCESS & PERSISTENCE
@@ -694,6 +699,12 @@ function bookPassNow(eventId) {
 
     regs.push(newReg);
     saveRegistrations(regs);
+
+    // Sync to Real-Time Cloud Firestore
+    if (window.EvenzaCloud && window.EvenzaCloud.isReady()) {
+        window.EvenzaCloud.saveRegistration(newReg).catch(err => console.warn('Cloud sync error:', err));
+    }
+
     renderQuickEvents();
     showToast(`Pass issued successfully: ${ticketId}`);
     viewTicketModal(ticketId);
@@ -704,6 +715,12 @@ function cancelRegistration(ticketId) {
     let regs = getStoredRegistrations();
     regs = regs.filter(r => r.id !== ticketId);
     saveRegistrations(regs);
+
+    // Sync cancellation to Real-Time Cloud Firestore
+    if (window.EvenzaCloud && window.EvenzaCloud.isReady()) {
+        window.EvenzaCloud.updateRegistration(ticketId, { status: 'cancelled' }).catch(err => console.warn('Cloud cancel error:', err));
+    }
+
     renderQuickEvents();
     showToast("Event pass cancelled.", "info");
 }
@@ -778,6 +795,19 @@ function checkSessionAndRender() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Hook Real-time Cloud updates from other devices
+    if (window.EvenzaCloud) {
+        window.EvenzaCloud.onEventsUpdated(() => {
+            console.log('[Evenza Student] Received real-time events from cloud');
+            renderQuickEvents();
+        });
+        window.EvenzaCloud.onRegistrationsUpdated(() => {
+            console.log('[Evenza Student] Received real-time registrations from cloud');
+            renderStudentPasses();
+            renderQuickEvents();
+        });
+    }
+
     checkSessionAndRender();
 });
 </script>

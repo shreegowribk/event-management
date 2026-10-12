@@ -227,6 +227,13 @@ include __DIR__ . '/admin_header.php';
                                     <a href="edit_event.php?event_id=<?= (int)$evt['event_id'] ?>" class="btn btn-sm btn-outline-secondary rounded-pill px-2 ms-1" title="Edit Event">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
+                                    <form method="POST" action="admin_dashboard.php" class="d-inline ms-1" onsubmit="return confirm('Are you sure you want to permanently delete \'<?= escape($evt['event_name']) ?>\'? This will also remove student registrations.');">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="delete_event_id" value="<?= (int)$evt['event_id'] ?>">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2" title="Delete Event">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             <?php endwhile; ?>

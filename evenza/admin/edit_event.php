@@ -177,12 +177,21 @@ include __DIR__ . '/admin_header.php';
                             </div>
                         </div>
 
-                        <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
+                        <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
                             <a href="admin_dashboard.php" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
-                            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
-                                <i class="bi bi-check-lg me-1"></i> Save Changes
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-danger rounded-pill px-3" onclick="if(confirm('Are you sure you want to permanently delete this event and all its registrations?')) { document.getElementById('deleteEventForm').submit(); }">
+                                    <i class="bi bi-trash me-1"></i> Delete Event
+                                </button>
+                                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                                    <i class="bi bi-check-lg me-1"></i> Save Changes
+                                </button>
+                            </div>
                         </div>
+                    </form>
+                    <form id="deleteEventForm" method="POST" action="admin_dashboard.php" style="display: none;">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="delete_event_id" value="<?= (int)$event_id ?>">
                     </form>
                 </div>
             </div>

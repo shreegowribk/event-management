@@ -436,24 +436,16 @@
 // DATA ACCESS & PERSISTENCE
 // =========================================================================
 
+// Clear legacy demo/fake data from previous browser sessions
+if (!localStorage.getItem('evenza_live_clean_v1')) {
+    localStorage.removeItem('evenza_events');
+    localStorage.removeItem('evenza_registrations');
+    localStorage.setItem('evenza_live_clean_v1', 'true');
+}
+
 function getStoredEvents() {
     const raw = localStorage.getItem('evenza_events');
-    if (!raw) {
-        const initial = [{
-            id: 7,
-            name: "Conference: Confluence 2026",
-            category: "Academic",
-            date: "2026-10-25",
-            time: "10:00",
-            venue: "BMS CCM Main Auditorium",
-            description: "2nd Inter-College Academic Conference - Confluence 2026 bringing together scholars, students, and faculty.",
-            maxSeats: 300,
-            status: "upcoming"
-        }];
-        localStorage.setItem('evenza_events', JSON.stringify(initial));
-        return initial;
-    }
-    return JSON.parse(raw);
+    return raw ? JSON.parse(raw) : [];
 }
 
 function getStoredRegistrations() {

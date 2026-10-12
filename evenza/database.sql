@@ -68,9 +68,4 @@ CREATE TABLE IF NOT EXISTS `registrations` (
   CONSTRAINT `unique_student_event` UNIQUE (`student_id`, `event_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------------------------------------
--- Sample Seed Data for Evenza Events
--- ----------------------------------------------------------
-INSERT INTO `events` (`event_name`, `category`, `event_date`, `event_time`, `venue`, `description`, `max_seats`) VALUES
-('Conference', 'Academic', '2026-10-25', '10:00:00', 'BMS CCM', '2nd Conference- Confluence 2026', 300);
 

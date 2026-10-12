@@ -436,36 +436,20 @@
 // DATA ACCESS & PERSISTENCE
 // =========================================================================
 
-const DEFAULT_EVENTS = [
-    {
-        id: 7,
-        name: "Conference: Confluence 2026",
-        category: "Academic",
-        date: "2026-10-25",
-        time: "10:00",
-        venue: "BMS CCM Main Auditorium",
-        description: "2nd Inter-College Academic Conference - Confluence 2026 bringing together scholars, students, and faculty.",
-        maxSeats: 300,
-        status: "upcoming"
-    }
-];
+// One-time purge of all fake/mock seed data for fresh live operation
+if (!localStorage.getItem('evenza_fresh_live_v2')) {
+    localStorage.removeItem('evenza_events');
+    localStorage.removeItem('evenza_registrations');
+    localStorage.setItem('evenza_fresh_live_v2', 'true');
+}
 
 function getStoredEvents() {
     const raw = localStorage.getItem('evenza_events');
-    if (!raw || raw === '[]' || raw === 'null') {
-        localStorage.setItem('evenza_events', JSON.stringify(DEFAULT_EVENTS));
-        return DEFAULT_EVENTS;
-    }
     try {
-        const events = JSON.parse(raw);
-        if (!Array.isArray(events) || events.length === 0) {
-            localStorage.setItem('evenza_events', JSON.stringify(DEFAULT_EVENTS));
-            return DEFAULT_EVENTS;
-        }
-        return events;
+        const events = raw ? JSON.parse(raw) : [];
+        return Array.isArray(events) ? events : [];
     } catch (e) {
-        localStorage.setItem('evenza_events', JSON.stringify(DEFAULT_EVENTS));
-        return DEFAULT_EVENTS;
+        return [];
     }
 }
 

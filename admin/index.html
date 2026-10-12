@@ -267,6 +267,9 @@
                 <button class="btn btn-warning text-dark rounded-pill px-3 shadow-sm fw-bold" onclick="openAddEventModal()">
                     <i class="bi bi-plus-lg me-1"></i> Add Event
                 </button>
+                <button class="btn btn-outline-danger rounded-pill px-3 fw-bold" onclick="deleteAllEventsAndDatabase()">
+                    <i class="bi bi-trash3 me-1"></i> Delete All Events
+                </button>
                 <button class="btn btn-outline-dark rounded-pill px-3 fw-bold" onclick="switchTab('roster')">
                     <i class="bi bi-file-earmark-spreadsheet me-1"></i> Registrations Roster
                 </button>
@@ -281,7 +284,7 @@
                         <i class="bi bi-calendar-event"></i>
                     </div>
                     <div>
-                        <h3 class="fw-bold text-dark mb-0" id="kpiTotalEvents">1</h3>
+                        <h3 class="fw-bold text-dark mb-0" id="kpiTotalEvents">0</h3>
                         <span class="text-muted small">Total Events Hosted</span>
                     </div>
                 </div>
@@ -781,11 +784,13 @@
 // DATA ACCESS & LIVE STATE
 // =========================================================================
 
-// One-time purge of all fake/mock seed data for fresh live operation
-if (!localStorage.getItem('evenza_fresh_live_v2')) {
-    localStorage.removeItem('evenza_events');
-    localStorage.removeItem('evenza_registrations');
-    localStorage.setItem('evenza_fresh_live_v2', 'true');
+// Total purge to delete all listed events and database registrations
+if (!localStorage.getItem('evenza_purge_clean_all_v5')) {
+    localStorage.setItem('evenza_events', '[]');
+    localStorage.setItem('evenza_registrations', '[]');
+    localStorage.removeItem('evenza_deleted_events');
+    localStorage.removeItem('evenza_deleted_regs');
+    localStorage.setItem('evenza_purge_clean_all_v5', 'true');
 }
 
 function getStoredEvents() {
@@ -1170,6 +1175,33 @@ function deleteEvent(eventId) {
     showToast(removedCount > 0 
         ? `Event deleted and ${removedCount} student registration(s) removed.` 
         : `Event removed from directory.`, "info");
+}
+
+function deleteAllEventsAndDatabase() {
+    if (!confirm("Are you sure you want to delete ALL campus events and all student registrations? This will reset the directory to 0 events and wipe the database.")) return;
+    
+    // 1. Wipe local events and registrations
+    saveEvents([]);
+    saveRegistrations([]);
+    localStorage.setItem('evenza_events', '[]');
+    localStorage.setItem('evenza_registrations', '[]');
+    localStorage.removeItem('evenza_deleted_events');
+    localStorage.removeItem('evenza_deleted_regs');
+
+    // 2. Wipe cloud if active
+    if (window.EvenzaCloud && window.EvenzaCloud.isReady()) {
+        if (typeof window.EvenzaCloud.deleteAllData === 'function') {
+            window.EvenzaCloud.deleteAllData().catch(err => console.warn('Cloud purge error:', err));
+        }
+    }
+
+    // 3. Update all views
+    updateKPIs();
+    renderEventsTable();
+    populateEventFilters();
+    renderRosterTable();
+
+    showToast("All campus events and database registrations deleted successfully.", "success");
 }
 
 function cleanupOrphanedRegistrations() {

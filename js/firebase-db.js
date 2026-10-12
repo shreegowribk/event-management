@@ -29,6 +29,15 @@
     const eventListeners = [];
     const regListeners = [];
 
+    // Total purge to delete all listed events and database registrations
+    if (!localStorage.getItem('evenza_purge_clean_all_v5')) {
+        localStorage.setItem('evenza_events', '[]');
+        localStorage.setItem('evenza_registrations', '[]');
+        localStorage.removeItem('evenza_deleted_events');
+        localStorage.removeItem('evenza_deleted_regs');
+        localStorage.setItem('evenza_purge_clean_all_v5', 'true');
+    }
+
     function getConfig() {
         try {
             const saved = localStorage.getItem(CONFIG_KEY);
@@ -89,15 +98,30 @@
     async function setupBuiltinCloudSync() {
         if (restPollingTimer) clearInterval(restPollingTimer);
 
+        // Immediate cross-tab sync without network requests
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'evenza_events') {
+                notifyEventsUpdated(getStoredEvents());
+            } else if (e.key === 'evenza_registrations') {
+                notifyRegsUpdated(getStoredRegistrations());
+            }
+        });
+
+        // Tab focus sync
+        window.addEventListener('focus', async () => {
+            await syncEventsFromBuiltinCloud();
+            await syncRegistrationsFromBuiltinCloud();
+        });
+
         // Initial Sync
         await syncEventsFromBuiltinCloud();
         await syncRegistrationsFromBuiltinCloud();
 
-        // Background polling every 4 seconds for live updates
+        // Background sync polling every 30 seconds
         restPollingTimer = setInterval(async () => {
             await syncEventsFromBuiltinCloud();
             await syncRegistrationsFromBuiltinCloud();
-        }, 4000);
+        }, 30000);
     }
 
     function getDeletedEventIds() {
@@ -148,8 +172,14 @@
             cloudEvents = cloudEvents.filter(ce => !deletedEventIds.has(String(ce.id)));
             const localEvents = getStoredEvents().filter(le => !deletedEventIds.has(String(le.id)));
 
-            if (cloudEvents.length > 0) {
-                // If local has events not yet in cloud (e.g. from laptop), merge & push up
+            if (Array.isArray(cloudEvents) && cloudEvents.length === 0) {
+                // Cloud is intentionally empty - synchronize local storage to empty as well
+                if (localEvents.length > 0) {
+                    localStorage.setItem('evenza_events', JSON.stringify([]));
+                    notifyEventsUpdated([]);
+                }
+            } else if (cloudEvents.length > 0) {
+                // If local has events not yet in cloud (e.g. created offline), merge & push up
                 const missingInCloud = localEvents.filter(le => !cloudEvents.some(ce => String(ce.id) === String(le.id)));
                 if (missingInCloud.length > 0) {
                     const merged = [...cloudEvents, ...missingInCloud];
@@ -165,9 +195,6 @@
                     localStorage.setItem('evenza_events', cloudJson);
                     notifyEventsUpdated(cloudEvents);
                 }
-            } else if (localEvents.length > 0) {
-                // Cloud is empty, push local events to cloud
-                await pushEventsToBuiltinCloud(localEvents);
             }
         } catch (e) {
             console.debug('[Evenza Cloud] Event sync check:', e.message);
@@ -200,7 +227,13 @@
             cloudRegs = cloudRegs.filter(cr => !deletedRegIds.has(String(cr.id)) && (!cr.eventId || !deletedEventIds.has(String(cr.eventId))));
             const localRegs = getStoredRegistrations().filter(lr => !deletedRegIds.has(String(lr.id)) && (!lr.eventId || !deletedEventIds.has(String(lr.eventId))));
 
-            if (cloudRegs.length > 0) {
+            if (Array.isArray(cloudRegs) && cloudRegs.length === 0) {
+                // Cloud is intentionally empty - synchronize local storage to empty as well
+                if (localRegs.length > 0) {
+                    localStorage.setItem('evenza_registrations', JSON.stringify([]));
+                    notifyRegsUpdated([]);
+                }
+            } else if (cloudRegs.length > 0) {
                 const missingInCloud = localRegs.filter(lr => !cloudRegs.some(cr => String(cr.id) === String(lr.id)));
                 if (missingInCloud.length > 0) {
                     const merged = [...cloudRegs, ...missingInCloud];
@@ -216,8 +249,6 @@
                     localStorage.setItem('evenza_registrations', cloudJson);
                     notifyRegsUpdated(cloudRegs);
                 }
-            } else if (localRegs.length > 0) {
-                await pushRegistrationsToBuiltinCloud(localRegs);
             }
         } catch (e) {
             console.debug('[Evenza Cloud] Reg sync check:', e.message);
@@ -448,6 +479,35 @@
         return item;
     }
 
+    async function deleteAllData() {
+        localStorage.setItem('evenza_events', JSON.stringify([]));
+        localStorage.setItem('evenza_registrations', JSON.stringify([]));
+        localStorage.removeItem('evenza_deleted_events');
+        localStorage.removeItem('evenza_deleted_regs');
+
+        if (isFirebaseActive && db) {
+            try {
+                const evSnap = await db.collection('evenza_events').get();
+                const b1 = db.batch();
+                evSnap.forEach(d => b1.delete(d.ref));
+                await b1.commit();
+
+                const regSnap = await db.collection('evenza_registrations').get();
+                const b2 = db.batch();
+                regSnap.forEach(d => b2.delete(d.ref));
+                await b2.commit();
+            } catch (err) {
+                console.error('[Evenza Cloud] Firebase purge error:', err);
+            }
+        } else {
+            await pushEventsToBuiltinCloud([]);
+            await pushRegistrationsToBuiltinCloud([]);
+        }
+
+        notifyEventsUpdated([]);
+        notifyRegsUpdated([]);
+    }
+
     // Public API
     window.EvenzaCloud = {
         init,
@@ -460,7 +520,8 @@
         deleteEvent,
         deleteRegistration,
         saveRegistration,
-        updateRegistration
+        updateRegistration,
+        deleteAllData
     };
 
     if (document.readyState === 'loading') {

@@ -1,28 +1,73 @@
-// Evenza PWA Integration Script
+// Evenza Universal App (iOS & Android) Engine
 (function () {
     // 1. Register Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/sw.js', { scope: '/' })
                 .then((reg) => {
-                    console.log('[Evenza PWA] Service Worker registered with scope:', reg.scope);
+                    console.log('[Evenza App] Service Worker active:', reg.scope);
                 })
                 .catch((err) => {
-                    console.warn('[Evenza PWA] Service Worker registration failed:', err);
+                    console.warn('[Evenza App] Service Worker registration failed:', err);
                 });
         });
     }
 
-    // 2. Install Prompt Management
-    let deferredPrompt = null;
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-
     if (isStandalone) {
-        document.body && document.body.classList.add('evenza-pwa-standalone');
-        return; // Already installed and running as an app
+        document.documentElement.classList.add('evenza-pwa-standalone');
+        if (document.body) document.body.classList.add('evenza-pwa-standalone');
     }
 
     const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+    // 2. Mount Universal Bottom Navigation Bar for Mobile Phones (Android & iOS)
+    function mountMobileBottomNav() {
+        if (document.getElementById('evenza-mobile-bottom-nav')) return;
+
+        const path = window.location.pathname.toLowerCase();
+        let activeTab = 'events';
+        if (path.includes('/admin')) {
+            activeTab = 'admin';
+        } else if (path.includes('/student')) {
+            activeTab = 'student';
+        }
+
+        const nav = document.createElement('nav');
+        nav.id = 'evenza-mobile-bottom-nav';
+        nav.className = 'evenza-mobile-nav-bar';
+        nav.setAttribute('aria-label', 'Mobile Navigation');
+
+        nav.innerHTML = `
+            <a href="/" class="evenza-mobile-tab ${activeTab === 'events' ? 'active' : ''}">
+                <i class="bi bi-${activeTab === 'events' ? 'grid-1x2-fill' : 'grid-1x2'}"></i>
+                <span>Events</span>
+            </a>
+            <a href="/student/" class="evenza-mobile-tab ${activeTab === 'student' ? 'active' : ''}">
+                <i class="bi bi-${activeTab === 'student' ? 'ticket-perforated-fill' : 'ticket-perforated'}"></i>
+                <span>My Passes</span>
+            </a>
+            <a href="/admin/" class="evenza-mobile-tab ${activeTab === 'admin' ? 'active' : ''}">
+                <i class="bi bi-${activeTab === 'admin' ? 'shield-lock-fill' : 'shield-lock'}"></i>
+                <span>Admin</span>
+            </a>
+        `;
+
+        document.body.appendChild(nav);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', mountMobileBottomNav);
+    } else {
+        mountMobileBottomNav();
+    }
+
+    // 3. Install Prompt Management (Only shown in browser mode, not standalone)
+    if (isStandalone) {
+        return; // Already installed as an app
+    }
+
+    let deferredPrompt = null;
 
     function createInstallUI() {
         if (document.getElementById('evenza-pwa-install-banner')) return;
@@ -36,7 +81,7 @@
                 </div>
                 <div class="evenza-pwa-text">
                     <div class="evenza-pwa-title">Install Evenza App</div>
-                    <div class="evenza-pwa-desc">Instant access & live ticket tracking</div>
+                    <div class="evenza-pwa-desc">Same app on Android & iOS &bull; Instant sync</div>
                 </div>
                 <div class="evenza-pwa-actions">
                     <button id="evenza-pwa-install-btn" class="evenza-pwa-btn-primary">
@@ -52,13 +97,13 @@
         style.textContent = `
             #evenza-pwa-install-banner {
                 position: fixed;
-                bottom: 24px;
+                bottom: 84px;
                 left: 50%;
                 transform: translateX(-50%) translateY(120%);
                 z-index: 99999;
                 width: calc(100% - 32px);
                 max-width: 440px;
-                background: rgba(15, 23, 42, 0.94);
+                background: rgba(15, 23, 42, 0.96);
                 backdrop-filter: blur(16px);
                 -webkit-backdrop-filter: blur(16px);
                 border: 1px solid rgba(255, 255, 255, 0.12);
@@ -131,7 +176,7 @@
             }
             @media (max-width: 480px) {
                 #evenza-pwa-install-banner {
-                    bottom: 16px;
+                    bottom: 76px;
                     width: calc(100% - 24px);
                     padding: 10px 14px;
                 }
@@ -140,7 +185,6 @@
         document.head.appendChild(style);
         document.body.appendChild(banner);
 
-        // Event listeners
         const installBtn = document.getElementById('evenza-pwa-install-btn');
         const closeBtn = document.getElementById('evenza-pwa-close-btn');
 
@@ -149,12 +193,12 @@
                 deferredPrompt.prompt();
                 const choice = await deferredPrompt.userChoice;
                 if (choice.outcome === 'accepted') {
-                    console.log('[Evenza PWA] User accepted install prompt');
+                    console.log('[Evenza App] User accepted install');
                 }
                 deferredPrompt = null;
                 hideBanner();
             } else if (isIos) {
-                alert('To install Evenza on iPhone/iPad:\n1. Tap the Share button at the bottom of Safari\n2. Select "Add to Home Screen"');
+                alert('To install Evenza on iPhone/iPad:\n1. Tap the Share button (square with arrow ⎋) at the bottom\n2. Tap "Add to Home Screen"');
             }
         });
 
@@ -179,14 +223,12 @@
         }
     }
 
-    // Android / Chrome beforeinstallprompt event
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
         showBanner();
     });
 
-    // iOS prompt (only if in mobile safari and not standalone)
     if (isIos && !isStandalone && !sessionStorage.getItem('evenza_pwa_banner_dismissed')) {
         window.addEventListener('load', () => {
             setTimeout(showBanner, 2000);
@@ -194,7 +236,7 @@
     }
 
     window.addEventListener('appinstalled', () => {
-        console.log('[Evenza PWA] Application installed successfully');
+        console.log('[Evenza App] Installed successfully');
         const banner = document.getElementById('evenza-pwa-install-banner');
         if (banner) banner.remove();
     });

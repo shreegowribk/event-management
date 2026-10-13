@@ -1122,3 +1122,76 @@ a:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 20px rgba(197, 160, 89, 0.35);
 }
+
+/* ==========================================================
+   Full Native App Styling (iOS & Android Universal App)
+   ========================================================== */
+html, body {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 16px)) !important;
+  }
+}
+
+.evenza-mobile-nav-bar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .evenza-mobile-nav-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(64px + env(safe-area-inset-bottom, 12px));
+    padding-bottom: env(safe-area-inset-bottom, 12px);
+    background: rgba(15, 23, 42, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 9998;
+    align-items: center;
+    justify-content: space-around;
+    box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.25);
+  }
+
+  .evenza-mobile-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none !important;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    padding: 6px 18px;
+    border-radius: 12px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .evenza-mobile-tab i {
+    font-size: 1.25rem;
+    margin-bottom: 2px;
+    transition: transform 0.2s ease;
+  }
+
+  .evenza-mobile-tab.active {
+    color: #dfc187 !important;
+  }
+
+  .evenza-mobile-tab.active i {
+    transform: translateY(-2px);
+    color: #dfc187;
+    filter: drop-shadow(0 2px 8px rgba(223, 193, 135, 0.5));
+  }
+
+  .evenza-mobile-tab:active {
+    transform: scale(0.92);
+  }
+}

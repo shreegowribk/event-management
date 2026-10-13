@@ -13,12 +13,13 @@
 
     // Default Firebase configuration
     const DEFAULT_CONFIG = {
-        apiKey: "",
-        authDomain: "",
-        projectId: "",
-        storageBucket: "",
-        messagingSenderId: "",
-        appId: ""
+        apiKey: "AIzaSyC0ztUPBz7qSmlxl5BMKrMzICHBAmBZWNM",
+        authDomain: "event-management-cee66.firebaseapp.com",
+        projectId: "event-management-cee66",
+        storageBucket: "event-management-cee66.firebasestorage.app",
+        messagingSenderId: "1010049509573",
+        appId: "1:1010049509573:web:559cf3371cab146a9ee8ac",
+        measurementId: "G-F5Q45618TY"
     };
 
     let db = null;
@@ -311,6 +312,8 @@
                 localStorage.setItem('evenza_events', JSON.stringify(cloudEvents));
                 notifyEventsUpdated(cloudEvents);
             }
+        }, (err) => {
+            console.warn('[Evenza Cloud] Firestore events sync listener error:', err.message);
         });
 
         regsUnsubscribe = db.collection('evenza_registrations').onSnapshot((snapshot) => {
@@ -327,6 +330,8 @@
                 localStorage.setItem('evenza_registrations', JSON.stringify(cloudRegs));
                 notifyRegsUpdated(cloudRegs);
             }
+        }, (err) => {
+            console.warn('[Evenza Cloud] Firestore registrations sync listener error:', err.message);
         });
     }
 
